@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary": "#ffffff",
+              "surface": "#f7f6f8",
+              "on-error-container": "#991b1b",
+              "error-container": "#fef2f2",
+              "on-tertiary-fixed": "#431407",
+              "tertiary": "#f97316",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#e2e8f0",
+              "surface-tint": "#512484",
+              "secondary": "#64748b",
+              "surface-container": "#ffffff",
+              "surface-container-low": "rgba(255, 255, 255, 0.7)",
+              "tertiary-container": "#fff7ed",
+              "on-error": "#ffffff",
+              "surface-bright": "#ffffff",
+              "on-primary-container": "#ffffff",
+              "inverse-primary": "#dab9ff",
+              "surface-container-high": "#eee6ef",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#ffedd5",
+              "on-primary-fixed-variant": "#5b2f8e",
+              "surface-container-highest": "#e8e0e9",
+              "primary": "#512484",
+              "error": "#ef4444",
+              "background": "#f7f6f8",
+              "on-secondary-fixed": "#0f172a",
+              "outline-variant": "#cbd5e1",
+              "primary-fixed-dim": "#dab9ff",
+              "on-primary-fixed": "#2a0053",
+              "secondary-fixed": "#f1f5f9",
+              "on-surface-variant": "#4b4451",
+              "on-secondary-container": "#1e293b",
+              "on-background": "#0a050d",
+              "inverse-surface": "#0a050d",
+              "on-tertiary-fixed-variant": "#9a3412",
+              "surface-variant": "#ffffff",
+              "on-secondary-fixed-variant": "#334155",
+              "on-secondary": "#ffffff",
+              "on-surface": "#0a050d",
+              "on-tertiary-container": "#7c2d12",
+              "tertiary-fixed-dim": "#fed7aa",
+              "surface-dim": "#dfd8e0",
+              "primary-fixed": "#eedbff",
+              "secondary-fixed-dim": "#e2e8f0",
+              "primary-container": "#512484",
+              "inverse-on-surface": "#f6eef7",
+              "secondary-container": "#f1f5f9"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-black text-violet-800 dark:text-violet-300 uppercase tracking-[0.2em] text-xs">Pudu CRM</h1>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Operational Command</p>
+</div>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all duration-150 ease-in-out font-['Inter'] font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 font-bold border-r-4 border-violet-700 transition-all duration-150 ease-in-out font-['Inter'] text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Leads</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all duration-150 ease-in-out font-['Inter'] font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined" data-icon="business_center">business_center</span>
+<span>Accounts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all duration-150 ease-in-out font-['Inter'] font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span>Pipeline</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all duration-150 ease-in-out font-['Inter'] font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span>Analytics</span>
+</a>
+</div>
+<div class="mt-auto border-t border-slate-200 pt-6 space-y-1">
+<button class="w-full bg-primary text-white rounded-lg py-2.5 px-4 text-xs font-bold uppercase tracking-wider mb-4 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                Nuevo Registro
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all duration-150 ease-in-out font-['Inter'] font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 flex items-center justify-between px-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm z-40">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full bg-slate-100/50 border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Buscar contactos en Chile..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-500">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="help">help</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden ring-2 ring-white ring-offset-2 ring-offset-slate-100">
+<img alt="Avatar de usuario" class="w-full h-full object-cover" data-alt="Profile picture of a professional male manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx775UvrCfTlhL6SVY1VZ_uqAky4OZRgBnimX8FamiZOVKdu54e3EbIqaVqSbC6quBs6FlMGWnDlC2nVB8SYmE3tD2locyx2dG_b-qTlBwBbtXENvs9fRC2E_2QrcYbgJocfLbUgW2V4wGt5Pq2Y6FPmlq-MPD0Xnufdc7dRereNakI6KG8TNC_xVF3cmxaSshKYjUcffEF6TFooLc6rG0S4tjWqs5J7faxdn7byxmf64aMb66Hat7HWPTnNfpH49-IRdvMSrSvCbZ"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pl-64 pt-16 pb-32 min-h-screen">
+<div class="max-w-[1400px] mx-auto p-8">
+<!-- Header Section -->
+<div class="flex flex-col mb-8">
+<span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Directorio de Contactos</span>
+<h2 class="text-3xl font-black text-slate-900 tracking-tight">Contactos</h2>
+</div>
+<div class="flex gap-8 items-start">
+<!-- Data Rail (Left 8 Columns equivalent) -->
+<div class="flex-1 space-y-6">
+<!-- Filters & Actions -->
+<div class="flex items-center justify-between">
+<div class="flex items-center p-1 bg-slate-200/50 rounded-lg">
+<button class="px-6 py-1.5 rounded-md text-xs font-bold bg-white shadow-sm text-primary transition-all">Todos</button>
+<button class="px-6 py-1.5 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all">Prospectos</button>
+<button class="px-6 py-1.5 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all">Clientes</button>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-xs font-bold text-slate-600 hover:bg-white transition-all">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                                Filtrar
+                            </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm">person_add</span>
+                                Nuevo Contacto
+                            </button>
+</div>
+</div>
+<!-- Modern List View -->
+<div class="bg-surface-container rounded-xl overflow-hidden shadow-sm border border-slate-100">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/50 border-b border-slate-100">
+<th class="py-4 px-6 w-12"><input class="rounded text-primary focus:ring-primary border-slate-300" type="checkbox"/></th>
+<th class="py-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contacto</th>
+<th class="py-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Estado</th>
+<th class="py-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Empresa</th>
+<th class="py-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Valor Lead</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<!-- Row 1 -->
+<tr class="hover:bg-violet-50/30 transition-colors cursor-pointer group">
+<td class="py-4 px-6"><input class="rounded text-primary focus:ring-primary border-slate-300" type="checkbox"/></td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-primary font-bold text-sm">JV</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Javier Valenzuela</p>
+<p class="text-[11px] text-slate-500">javier.v@empresa.cl</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">Prospecto</span>
+</td>
+<td class="py-4 px-4">
+<p class="text-xs font-medium text-slate-600">Tech Patagonia SpA</p>
+</td>
+<td class="py-4 px-4 text-right">
+<p class="text-xs font-bold text-slate-900">$2.450.000</p>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-violet-50/50 hover:bg-violet-50 transition-colors cursor-pointer group border-l-4 border-l-primary">
+<td class="py-4 px-6"><input checked="" class="rounded text-primary focus:ring-primary border-slate-300" type="checkbox"/></td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<img alt="Isabel" class="w-10 h-10 rounded-full object-cover" data-alt="Headshot of a smiling female executive" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASKEyHyClG1V1-WdcWfMWZi2gtUb2NBKzj-pRCmr3Z71MzMt-lyyWFf2wv1OEoc1OS6AWc5zEFeUpmSZuCoRk0g7qrINTxj5z9B7HFdvQNtoWN-r_vbPSDnTXy0E-hY82xxWl4GOyfTnLjMDKcoioi8GIJaZTDQsYa2SpghBeDUNK446MVDJrrlYsui7gPJ5piW5ReBLT3NUG9_6D8JChQ5HDTQIbgOnd-cDhyPnTUWL3PKkOCwIbvUx5GXOtI1urgUM42jSr3iQcH"/>
+<div>
+<p class="text-sm font-bold text-slate-900">Isabel Allende</p>
+<p class="text-[11px] text-slate-500">i.allende@miningcorp.cl</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-100">Cliente Activo</span>
+</td>
+<td class="py-4 px-4">
+<p class="text-xs font-medium text-slate-600">Antofagasta Minerals</p>
+</td>
+<td class="py-4 px-4 text-right">
+<p class="text-xs font-bold text-slate-900">$12.800.000</p>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-violet-50/30 transition-colors cursor-pointer group">
+<td class="py-4 px-6"><input class="rounded text-primary focus:ring-primary border-slate-300" type="checkbox"/></td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-sm">RM</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Ricardo Müller</p>
+<p class="text-[11px] text-slate-500">rm@vinosdelsur.cl</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Inactivo</span>
+</td>
+<td class="py-4 px-4">
+<p class="text-xs font-medium text-slate-600">Viña Concha y Toro</p>
+</td>
+<td class="py-4 px-4 text-right">
+<p class="text-xs font-bold text-slate-900">$0</p>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-violet-50/30 transition-colors cursor-pointer group">
+<td class="py-4 px-6"><input class="rounded text-primary focus:ring-primary border-slate-300" type="checkbox"/></td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-primary font-bold text-sm">CM</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Constanza Morán</p>
+<p class="text-[11px] text-slate-500">connie@retailchile.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">Prospecto</span>
+</td>
+<td class="py-4 px-4">
+<p class="text-xs font-medium text-slate-600">Cencosud S.A.</p>
+</td>
+<td class="py-4 px-4 text-right">
+<p class="text-xs font-bold text-slate-900">$5.120.000</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Contextual Rail (Right 4 Columns equivalent) -->
+<aside class="w-96 space-y-6">
+<!-- Profile Summary Card -->
+<div class="bg-white rounded-xl shadow-lg border border-slate-100 p-6">
+<div class="flex justify-between items-start mb-6">
+<div class="h-20 w-20 rounded-xl overflow-hidden shadow-md">
+<img alt="Isabel Allende" class="w-full h-full object-cover" data-alt="Portrait of Isabel Allende, profile view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_rbmRl8OygLZnPknv07itbgy3eyw1yTIokGxtIWuzfCYKaMmCUw1ZTeoMznYpj1K4gNtiFF5UBW-WcnsxOp3Cj2mVxBHwzq0QRT2KHW8QnLIOEUCizp70glPW3gjY70-AL1nZXFbjFUouD7WBt89wgBGAuANP4ENQ2TIH4DLQbUdIEhdrXrGL1Y3b5BW427V-Bcls3y1LZC5Nd-2rU-8pNHLirhipYHXMfeMipnRiV6Ejt9IYde4coyUUoqmH7Pt5JCwtm83eTg_0"/>
+</div>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-black text-slate-900">Isabel Allende</h3>
+<p class="text-xs font-medium text-slate-500">Chief Procurement Officer</p>
+<div class="flex items-center gap-1 mt-2 text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded w-fit">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+                                CLIENTE VIP
+                            </div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="p-3 bg-slate-50 rounded-lg">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Última Llamada</p>
+<p class="text-xs font-bold text-slate-700">Hace 2 días</p>
+</div>
+<div class="p-3 bg-slate-50 rounded-lg">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pipeline</p>
+<p class="text-xs font-bold text-slate-700">Cierre Q4</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors group">
+<div class="w-8 h-8 rounded-lg bg-violet-50 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter leading-none mb-1">Email</p>
+<p class="text-xs font-medium text-slate-700 truncate">i.allende@miningcorp.cl</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors group">
+<div class="w-8 h-8 rounded-lg bg-violet-50 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter leading-none mb-1">Teléfono</p>
+<p class="text-xs font-medium text-slate-700">+56 9 8234 1102</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 bg-primary text-white text-xs font-bold rounded-lg shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:translate-y-[-1px] transition-all">
+                            Agendar Seguimiento
+                            <span class="material-symbols-outlined text-sm">calendar_today</span>
+</button>
+</div>
+<!-- Signal Cards (Compact Activity) -->
+<div class="space-y-3">
+<div class="border-l-4 border-l-orange-500 bg-white p-4 rounded-r-lg shadow-sm">
+<p class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Alerta de Seguimiento</p>
+<p class="text-xs text-slate-600 leading-relaxed">Enviar propuesta actualizada de licitación antes del Viernes.</p>
+</div>
+<div class="border-l-4 border-l-blue-500 bg-white p-4 rounded-r-lg shadow-sm">
+<p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Próximo Hito</p>
+<p class="text-xs text-slate-600 leading-relaxed">Reunión de gerencia en Las Condes - 14:00 PM</p>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<!-- BottomNavBar / Command Bar -->
+<div class="fixed bottom-0 left-64 right-0 z-50 flex justify-center pb-8 pointer-events-none">
+<div class="glass-panel bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-700/50 rounded-full max-w-md mx-auto shadow-2xl shadow-violet-500/20 px-4 py-3 flex items-center gap-2 pointer-events-auto">
+<div class="flex items-center gap-3 bg-violet-700 text-white rounded-full px-6 py-2.5 cursor-pointer hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="terminal">terminal</span>
+<span class="font-['Inter'] font-bold text-[10px] uppercase tracking-widest">Command</span>
+</div>
+<div class="h-6 w-px bg-slate-200 mx-2"></div>
+<div class="flex-1 px-2 flex items-center gap-2 text-slate-400">
+<span class="text-[11px] font-medium italic">Presiona CMD + K para acciones rápidas...</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="bg-slate-100 text-[9px] font-bold text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">⌘</span>
+<span class="bg-slate-100 text-[9px] font-bold text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">K</span>
+</div>
+</div>
+</div>
+</body></html>

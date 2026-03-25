@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary": "#ffffff",
+              "surface": "#f7f6f8",
+              "on-error-container": "#991b1b",
+              "error-container": "#fef2f2",
+              "on-tertiary-fixed": "#431407",
+              "tertiary": "#f97316",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#e2e8f0",
+              "surface-tint": "#512484",
+              "secondary": "#64748b",
+              "surface-container": "#ffffff",
+              "surface-container-low": "rgba(255, 255, 255, 0.7)",
+              "tertiary-container": "#fff7ed",
+              "on-error": "#ffffff",
+              "surface-bright": "#ffffff",
+              "on-primary-container": "#ffffff",
+              "inverse-primary": "#dab9ff",
+              "surface-container-high": "#eee6ef",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#ffedd5",
+              "on-primary-fixed-variant": "#5b2f8e",
+              "surface-container-highest": "#e8e0e9",
+              "primary": "#512484",
+              "error": "#ef4444",
+              "background": "#f7f6f8",
+              "on-secondary-fixed": "#0f172a",
+              "outline-variant": "#cbd5e1",
+              "primary-fixed-dim": "#dab9ff",
+              "on-primary-fixed": "#2a0053",
+              "secondary-fixed": "#f1f5f9",
+              "on-surface-variant": "#4b4451",
+              "on-secondary-container": "#1e293b",
+              "on-background": "#0a050d",
+              "inverse-surface": "#0a050d",
+              "on-tertiary-fixed-variant": "#9a3412",
+              "surface-variant": "#ffffff",
+              "on-secondary-fixed-variant": "#334155",
+              "on-secondary": "#ffffff",
+              "on-surface": "#0a050d",
+              "on-tertiary-container": "#7c2d12",
+              "tertiary-fixed-dim": "#fed7aa",
+              "surface-dim": "#dfd8e0",
+              "primary-fixed": "#eedbff",
+              "secondary-fixed-dim": "#e2e8f0",
+              "primary-container": "#512484",
+              "inverse-on-surface": "#f6eef7",
+              "secondary-container": "#f1f5f9"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 bg-slate-50 flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<div class="font-black text-violet-800 uppercase tracking-[0.2em] text-xs">Pudu CRM</div>
+<div class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-1">Operational Command</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">group</span> Leads
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">business_center</span> Accounts
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">account_tree</span> Pipeline
+            </a>
+<!-- Active: Analytics (Proximal to Automations/Data context) -->
+<a class="flex items-center gap-3 px-3 py-2 bg-violet-50 text-violet-700 font-bold border-r-4 border-violet-700 rounded-l-lg transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">bar_chart</span> Analytics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">description</span> Reports
+            </a>
+</nav>
+<div class="mt-auto space-y-1 pt-6 border-t border-slate-200">
+<button class="w-full mb-4 bg-primary text-white py-2.5 rounded-lg font-bold text-sm shadow-primary/20 shadow-lg active:scale-95 transition-transform">
+                New Record
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">contact_support</span> Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg">settings</span> Settings
+            </a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 flex items-center justify-between px-8 bg-white/70 backdrop-blur-md border-b border-slate-100 shadow-sm z-40 font-['Inter'] antialiased text-sm">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-full text-xs focus:ring-2 focus:ring-primary/20" placeholder="Buscar automatizaciones..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-500">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">help</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden">
+<img alt="User profile avatar" data-alt="User profile avatar circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV3ZhEsIv2FTjvTpLN93E3kbkg5ZxPfgwb2MrneytDnFlYVMAbqjRjhuqv9BG4VJ2dX0BpLEM0_m3tfuy2KO96WJ8jkksGv4aAk3wmVOcS0JCQ2SEK32TPWBe9706hux0hLn04zJB44xys3eygWUPnm7NcWFBMkOCArSLue3Vd8vFWifxOb6iLz67eS-mF62J03Uh3QDZUGS3o2KKIrkHmX96n23hGrl8K-eHMsE2s8Nb5ZwURc6sIInCy9HnXNHj8fznEMgC-gO_z"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 pb-32 px-12 min-h-screen">
+<header class="mb-12 flex justify-between items-end">
+<div class="max-w-2xl">
+<h1 class="text-[3rem] font-black text-slate-900 leading-none tracking-tighter mb-4">Automatizaciones</h1>
+<p class="text-slate-500 font-medium">Arquitectura de flujos lógicos para la velocidad operativa. Configure disparadores y acciones para eliminar la fricción manual.</p>
+</div>
+<button class="bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-primary/20 shadow-xl hover:scale-105 transition-transform active:scale-95">
+<span class="material-symbols-outlined">add</span>
+                Nuevo Flujo
+            </button>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Active Stats Summary -->
+<div class="col-span-12 md:col-span-4 bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary">
+<div class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Estado del Sistema</div>
+<div class="flex items-end gap-2 mb-2">
+<span class="text-4xl font-black text-slate-900 leading-none">24</span>
+<span class="text-primary font-bold text-sm mb-1">Activos</span>
+</div>
+<div class="flex gap-1 h-8 items-end">
+<div class="w-1 bg-primary h-[40%] rounded-full"></div>
+<div class="w-1 bg-primary h-[60%] rounded-full"></div>
+<div class="w-1 bg-primary h-[80%] rounded-full"></div>
+<div class="w-1 bg-primary h-[100%] rounded-full"></div>
+<div class="w-1 bg-primary h-[70%] rounded-full"></div>
+<div class="w-1 bg-primary h-[90%] rounded-full"></div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+<span class="text-xs text-slate-500">14.2k ejecuciones hoy</span>
+<span class="text-xs font-bold text-tertiary">+12% vs ayer</span>
+</div>
+</div>
+<!-- Signal Card: High Priority Action -->
+<div class="col-span-12 md:col-span-8 bg-white p-6 rounded-xl shadow-lg border-l-4 border-tertiary">
+<div class="flex justify-between items-start">
+<div>
+<div class="text-[10px] font-bold text-tertiary uppercase tracking-[0.2em] mb-2">Acción Requerida</div>
+<h3 class="text-xl font-bold text-slate-900 mb-2">Flujo de "Lead Calificado" en pausa</h3>
+<p class="text-sm text-slate-500 max-w-md">La integración con Salesforce ha detectado un error de autenticación. 34 leads están en cola de espera.</p>
+</div>
+<button class="bg-tertiary-container text-on-tertiary-container px-4 py-2 rounded-lg text-sm font-bold hover:bg-tertiary hover:text-white transition-colors">
+                        Revisar Error
+                    </button>
+</div>
+</div>
+<!-- Automation List: If Trigger Then Action -->
+<div class="col-span-12 mt-4">
+<div class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Flujos de Trabajo Recientes</div>
+<div class="space-y-4">
+<!-- Workflow Card 1 -->
+<div class="bg-white rounded-xl p-6 shadow-lg group hover:ring-2 hover:ring-primary/10 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-8 flex-1">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Si ocurre:</span>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+<span class="material-symbols-outlined text-primary text-sm">contact_page</span>
+<span class="text-sm font-bold text-slate-700">Nuevo Lead Creado</span>
+</div>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-slate-300">arrow_forward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Entonces:</span>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-violet-50 rounded-lg border border-violet-100">
+<span class="material-symbols-outlined text-primary text-sm">mail</span>
+<span class="text-sm font-bold text-violet-800">Enviar Secuencia Bienvenida</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Eficiencia</div>
+<div class="text-sm font-black text-slate-900">98.4%</div>
+</div>
+<div class="h-10 w-[1px] bg-slate-100"></div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-6 bg-primary/20 rounded-full relative cursor-pointer">
+<div class="absolute right-1 top-1 w-4 h-4 bg-primary rounded-full"></div>
+</div>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-slate-900">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Workflow Card 2 -->
+<div class="bg-white rounded-xl p-6 shadow-lg group hover:ring-2 hover:ring-primary/10 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-8 flex-1">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Si ocurre:</span>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+<span class="material-symbols-outlined text-primary text-sm">payments</span>
+<span class="text-sm font-bold text-slate-700">Factura Vencida &gt; 5 días</span>
+</div>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-slate-300">arrow_forward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Entonces:</span>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-violet-50 rounded-lg border border-violet-100">
+<span class="material-symbols-outlined text-primary text-sm">notification_important</span>
+<span class="text-sm font-bold text-violet-800">Notificar a Account Manager</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Eficiencia</div>
+<div class="text-sm font-black text-slate-900">100%</div>
+</div>
+<div class="h-10 w-[1px] bg-slate-100"></div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-6 bg-primary/20 rounded-full relative cursor-pointer">
+<div class="absolute right-1 top-1 w-4 h-4 bg-primary rounded-full"></div>
+</div>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-slate-900">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Workflow Card 3 (Error State) -->
+<div class="bg-white rounded-xl p-6 shadow-lg group hover:ring-2 hover:ring-error/10 border-l-4 border-error transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-8 flex-1">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Si ocurre:</span>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+<span class="material-symbols-outlined text-primary text-sm">webhook</span>
+<span class="text-sm font-bold text-slate-700">Webhook Externo (Zendesk)</span>
+</div>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-slate-300">arrow_forward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Entonces:</span>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-error-container rounded-lg border border-error/10">
+<span class="material-symbols-outlined text-error text-sm">sync_problem</span>
+<span class="text-sm font-bold text-error">Actualizar Ticket en CRM</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-[10px] font-bold text-error uppercase mb-1">Fallo Detectado</div>
+<div class="text-sm font-black text-error">Error 401</div>
+</div>
+<div class="h-10 w-[1px] bg-slate-100"></div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-6 bg-slate-200 rounded-full relative cursor-pointer">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white shadow-sm rounded-full"></div>
+</div>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-slate-900">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (The Floating Command Bar) -->
+<nav class="fixed bottom-0 left-64 right-0 z-50 flex justify-center pb-8">
+<div class="bg-white/70 backdrop-blur-md rounded-full max-w-md w-full border border-slate-200/50 shadow-2xl shadow-violet-500/20 px-4 py-2 flex items-center justify-between">
+<div class="flex items-center gap-2 bg-violet-700 text-white rounded-full px-6 py-3 cursor-pointer hover:scale-105 transition-transform active:scale-95 font-['Inter'] font-bold text-[10px] uppercase tracking-widest">
+<span class="material-symbols-outlined text-lg">terminal</span>
+<span>Command</span>
+<span class="ml-2 opacity-50 font-normal">CMD+K</span>
+</div>
+<div class="flex gap-4 pr-4">
+<span class="material-symbols-outlined text-slate-600 cursor-pointer hover:text-primary transition-colors">history</span>
+<span class="material-symbols-outlined text-slate-600 cursor-pointer hover:text-primary transition-colors">bolt</span>
+<span class="material-symbols-outlined text-slate-600 cursor-pointer hover:text-primary transition-colors">share</span>
+</div>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary": "#ffffff",
+              "surface": "#f7f6f8",
+              "on-error-container": "#991b1b",
+              "error-container": "#fef2f2",
+              "on-tertiary-fixed": "#431407",
+              "tertiary": "#f97316",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#e2e8f0",
+              "surface-tint": "#512484",
+              "secondary": "#64748b",
+              "surface-container": "#ffffff",
+              "surface-container-low": "rgba(255, 255, 255, 0.7)",
+              "tertiary-container": "#fff7ed",
+              "on-error": "#ffffff",
+              "surface-bright": "#ffffff",
+              "on-primary-container": "#ffffff",
+              "inverse-primary": "#dab9ff",
+              "surface-container-high": "#eee6ef",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#ffedd5",
+              "on-primary-fixed-variant": "#5b2f8e",
+              "surface-container-highest": "#e8e0e9",
+              "primary": "#512484",
+              "error": "#ef4444",
+              "background": "#f7f6f8",
+              "on-secondary-fixed": "#0f172a",
+              "outline-variant": "#cbd5e1",
+              "primary-fixed-dim": "#dab9ff",
+              "on-primary-fixed": "#2a0053",
+              "secondary-fixed": "#f1f5f9",
+              "on-surface-variant": "#4b4451",
+              "on-secondary-container": "#1e293b",
+              "on-background": "#0a050d",
+              "inverse-surface": "#0a050d",
+              "on-tertiary-fixed-variant": "#9a3412",
+              "surface-variant": "#ffffff",
+              "on-secondary-fixed-variant": "#334155",
+              "on-secondary": "#ffffff",
+              "on-surface": "#0a050d",
+              "on-tertiary-container": "#7c2d12",
+              "tertiary-fixed-dim": "#fed7aa",
+              "surface-dim": "#dfd8e0",
+              "primary-fixed": "#eedbff",
+              "secondary-fixed-dim": "#e2e8f0",
+              "primary-container": "#512484",
+              "inverse-on-surface": "#f6eef7",
+              "secondary-container": "#f1f5f9"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 bg-slate-50 flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h2 class="font-black text-violet-800 uppercase tracking-[0.2em] text-xs">Pudu CRM</h2>
+<p class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-1">Operational Command</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                Leads
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-violet-50 text-violet-700 font-bold border-r-4 border-violet-700 transition-all duration-150 ease-in-out text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                Actividades
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+                Pipeline
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-all duration-150 ease-in-out font-medium text-[13px] tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                Analytics
+            </a>
+</nav>
+<button class="mt-4 mx-2 bg-primary text-white py-2.5 rounded-lg text-[13px] font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+            New Record
+        </button>
+<div class="mt-auto pt-6 border-t border-slate-200 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 font-medium text-[13px]" href="#">
+<span class="material-symbols-outlined text-[20px]">contact_support</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 font-medium text-[13px]" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+</div>
+</aside>
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 right-0 left-64 h-16 flex items-center justify-between px-8 bg-white/70 backdrop-blur-md border-b border-slate-100 shadow-sm z-40">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full bg-slate-100 border-none rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20" placeholder="Buscar actividades o clientes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-50 transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-violet-100 border border-violet-200 overflow-hidden ml-2">
+<img class="w-full h-full object-cover" data-alt="User profile professional avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWlxH-RD9jFwBnqRQ9oUJqM24D_2NU2BsXk6iWEKnfpUD3Gcfb9Z3PxMrkAoYaZKtZ_EWoaKRQvHsu8o6dtkYJFKQgzov__CA3KVL-AHRRT82WJclPzKhwHcQv0X-zTlE__49U6zSwV3k11wd0ILzrdNoJDbcUqwDOwpYmMMhTn5AfMx-ZRAcKG9xn7LqAMyH8jVud0dO71Ion6FPGECVnVr6zPJlCegP9ct6SzIGvUV70qAyqhMtvV4iCGSMiivN_VWgKA4Z7TmLc"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 pb-24 min-h-screen">
+<div class="px-8 py-8 flex flex-col gap-8">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">Gestión de Calendario</span>
+<h1 class="text-3xl font-black text-slate-900 tracking-tight">Actividades</h1>
+</div>
+<div class="flex bg-white p-1 rounded-xl shadow-sm border border-slate-100">
+<button class="px-4 py-1.5 text-xs font-bold bg-slate-900 text-white rounded-lg transition-all">MES</button>
+<button class="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded-lg transition-all">SEMANA</button>
+<button class="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded-lg transition-all">DÍA</button>
+</div>
+</div>
+<!-- Split View Layout -->
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- Left Column: Calendar Command -->
+<div class="col-span-8 space-y-6">
+<div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+<div class="p-6 border-b border-slate-50 flex justify-between items-center">
+<h3 class="font-bold text-slate-800">Octubre 2023</h3>
+<div class="flex gap-2">
+<button class="p-1 hover:bg-slate-100 rounded transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-1 hover:bg-slate-100 rounded transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+<div class="p-2">
+<div class="grid grid-cols-7 text-center py-4">
+<div class="text-[10px] font-bold text-slate-400 tracking-widest">LUN</div>
+<div class="text-[10px] font-bold text-slate-400 tracking-widest">MAR</div>
+<div class="text-[10px] font-bold text-slate-400 tracking-widest">MIÉ</div>
+<div class="text-[10px] font-bold text-slate-400 tracking-widest">JUE</div>
+<div class="text-[10px] font-bold text-slate-400 tracking-widest">VIE</div>
+<div class="text-[10px] font-bold text-slate-400 tracking-widest text-primary">SÁB</div>
+<div class="text-[10px] font-bold text-slate-400 tracking-widest text-primary">DOM</div>
+</div>
+<div class="grid grid-cols-7 gap-px bg-slate-100 border border-slate-100">
+<!-- Calendar Grid (Simplified representation) -->
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-400">26</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-400">27</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-400">28</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-400">29</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-400">30</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">1</span>
+<div class="mt-1 flex flex-col gap-1">
+<div class="h-1 w-full bg-blue-400 rounded-full"></div>
+</div>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">2</span>
+</div>
+<!-- Week 2 -->
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">3</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
+<span class="text-xs text-slate-800 font-medium">4</span>
+<div class="mt-1 flex flex-col gap-1">
+<div class="h-1 w-full bg-primary rounded-full"></div>
+<div class="h-1 w-full bg-tertiary rounded-full"></div>
+</div>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">5</span>
+</div>
+<div class="bg-white aspect-square p-2 ring-2 ring-primary bg-primary/5 z-10">
+<span class="text-xs text-primary font-black">6</span>
+<div class="mt-1 flex flex-col gap-1">
+<div class="h-1 w-full bg-primary rounded-full"></div>
+</div>
+<div class="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></div>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">7</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">8</span>
+</div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors">
+<span class="text-xs text-slate-800 font-medium">9</span>
+</div>
+<!-- Fill Remaining with simplified placeholders -->
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">10</span></div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">11</span></div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">12</span></div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">13</span></div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">14</span></div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">15</span></div>
+<div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-xs text-slate-800 font-medium">16</span></div>
+</div>
+</div>
+</div>
+<!-- Horizontal Signal Strip -->
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-white p-4 border-l-4 border-blue-500 rounded-lg shadow-sm">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reuniones</span>
+<span class="text-blue-500 material-symbols-outlined text-lg">videocam</span>
+</div>
+<p class="text-2xl font-black mt-1">12</p>
+<p class="text-[10px] text-slate-500 font-medium">Próximos 7 días</p>
+</div>
+<div class="bg-white p-4 border-l-4 border-primary rounded-lg shadow-sm">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Seguimientos</span>
+<span class="text-primary material-symbols-outlined text-lg">call</span>
+</div>
+<p class="text-2xl font-black mt-1">08</p>
+<p class="text-[10px] text-slate-500 font-medium">Pendientes hoy</p>
+</div>
+<div class="bg-white p-4 border-l-4 border-tertiary rounded-lg shadow-sm">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Urgentes</span>
+<span class="text-tertiary material-symbols-outlined text-lg">priority_high</span>
+</div>
+<p class="text-2xl font-black mt-1">03</p>
+<p class="text-[10px] text-slate-500 font-medium">Vencen pronto</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Task List Command -->
+<div class="col-span-4 space-y-6">
+<div class="bg-white rounded-xl shadow-lg border border-slate-100 flex flex-col h-[500px]">
+<div class="p-6 border-b border-slate-50 flex justify-between items-center">
+<h3 class="font-bold text-slate-800">Tareas de Hoy</h3>
+<button class="text-primary hover:bg-primary/5 p-1 rounded transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-3">
+<!-- Task Card 1 -->
+<div class="group bg-slate-50 hover:bg-white hover:ring-2 hover:ring-primary/10 transition-all p-4 rounded-xl border border-transparent">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 flex-shrink-0">
+<div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center group-hover:border-primary transition-colors cursor-pointer"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-slate-900 leading-tight">Llamada de cierre: Acme Corp</h4>
+<span class="text-[9px] font-black bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded uppercase">Alta</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-2">Confirmar términos de contrato y firma digital.</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">schedule</span>
+<span class="text-[10px] font-bold text-slate-600 tracking-wide">10:30 AM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Task Card 2 -->
+<div class="group bg-slate-50 hover:bg-white hover:ring-2 hover:ring-primary/10 transition-all p-4 rounded-xl border border-transparent">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 flex-shrink-0">
+<div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center group-hover:border-primary transition-colors cursor-pointer"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-slate-900 leading-tight">Revisión de métricas</h4>
+<span class="text-[9px] font-black bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded uppercase">Media</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-2">Preparar reporte de analytics del Q3.</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">schedule</span>
+<span class="text-[10px] font-bold text-slate-600 tracking-wide">02:00 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Task Card 3 -->
+<div class="group bg-slate-50 hover:bg-white hover:ring-2 hover:ring-primary/10 transition-all p-4 rounded-xl border border-transparent border-l-4 border-l-tertiary">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 flex-shrink-0">
+<div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center group-hover:border-primary transition-colors cursor-pointer"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-slate-900 leading-tight">Follow-up: Client X</h4>
+<span class="text-[9px] font-black bg-tertiary/10 text-tertiary px-1.5 py-0.5 rounded uppercase">Urgente</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-2">Responder ticket de soporte crítico.</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">schedule</span>
+<span class="text-[10px] font-bold text-slate-600 tracking-wide">04:45 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Task Card 4 (Empty state for variety) -->
+<div class="border-2 border-dashed border-slate-200 p-4 rounded-xl flex items-center justify-center">
+<button class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> Nueva Tarea
+                                </button>
+</div>
+</div>
+</div>
+<!-- Contextual Stats Rail -->
+<div class="bg-violet-900 text-white p-6 rounded-xl shadow-xl">
+<h4 class="text-[10px] font-bold tracking-[0.2em] uppercase opacity-70 mb-4">Progreso Diario</h4>
+<div class="flex items-end gap-2 mb-4 h-24">
+<div class="w-full bg-white/20 rounded-t h-[30%]"></div>
+<div class="w-full bg-white/20 rounded-t h-[50%]"></div>
+<div class="w-full bg-white/20 rounded-t h-[80%]"></div>
+<div class="w-full bg-white rounded-t h-[100%]"></div>
+<div class="w-full bg-white/20 rounded-t h-[40%]"></div>
+<div class="w-full bg-white/20 rounded-t h-[60%]"></div>
+<div class="w-full bg-white/20 rounded-t h-[20%]"></div>
+</div>
+<p class="text-xs font-medium opacity-90 leading-relaxed">Estás al 85% de tu meta de eficiencia para hoy. 2 tareas críticas restantes.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Floating Command Bar) -->
+<div class="fixed bottom-0 left-64 right-0 z-50 flex justify-center pb-6">
+<div class="rounded-full max-w-md w-full bg-white/70 backdrop-blur-md border border-slate-200/50 shadow-2xl shadow-violet-500/20 flex items-center justify-between px-2 py-1.5">
+<div class="flex items-center gap-1">
+<div class="flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-['Inter'] font-bold text-[10px] uppercase tracking-widest">Command</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 px-4 py-3 hover:scale-105 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-sm">search</span>
+<span class="text-[10px] font-bold opacity-60">CMD+K</span>
+</div>
+</div>
+<div class="flex items-center gap-2 px-4">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">star</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>
