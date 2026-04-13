@@ -7,6 +7,8 @@ steps:
       - '--build-arg=VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlZXFhcnFjY2x2bmZlaXJ2cXB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTg4MTEsImV4cCI6MjA4OTk3NDgxMX0.RtID_Dadewv57TtDeVwA4ZwrNJkFXodJR-Mb7xylnyU'
       - '--build-arg=VITE_SUPABASE_PROJECT_ID=geeqarqcclvnfeirvqpz'
       - '--build-arg=VITE_WA_SERVER_URL=http://3.143.245.74:3001'
+      - '--build-arg=VITE_GROQ_API_KEY=${_GROQ_API_KEY}'
+      - '--build-arg=VITE_GEMINI_API_KEY=${_GEMINI_API_KEY}'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm:latest'
       - '.'
