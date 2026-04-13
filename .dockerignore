@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+nano.env
+*.pem
+.git
+.gitignore
+README.md
