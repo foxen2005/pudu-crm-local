@@ -1,9 +1,15 @@
 import Groq from 'groq-sdk';
 
-const client = new Groq({
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
+// Lazy init — si no hay key, el cliente es null y las funciones de IA retornan vacío.
+// Esto evita que la app explote al cargar si la variable no está definida.
+let _client: Groq | null = null;
+function getClient(): Groq | null {
+  if (_client) return _client;
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  if (!apiKey) return null;
+  _client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+  return _client;
+}
 
 export type CrmContext = {
   contactos: { nombre: string; apellido: string | null; empresa: string | null; estado: string; email: string | null; telefono: string | null }[];
@@ -256,6 +262,8 @@ ${stats}
 Responde con este JSON exacto (sin markdown, sin texto extra):
 {"insights":[{"icon":"MATERIAL_ICON","titulo":"TITULO_CORTO","descripcion":"DESCRIPCION_EN_1_ORACION","tipo":"success|warning|info|alert"},...]}`
 
+  const client = getClient();
+  if (!client) return [];
   try {
     const result = await client.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
@@ -279,6 +287,8 @@ export async function streamChatMessage(
   onError: (error: string) => void,
   crmContext?: CrmContext,
 ) {
+  const client = getClient();
+  if (!client) { onError('IA no disponible: falta VITE_GROQ_API_KEY'); return; }
   try {
     const stream = await client.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
