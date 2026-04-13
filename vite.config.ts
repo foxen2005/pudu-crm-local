@@ -33,24 +33,29 @@ function askWaTarget(envUrl?: string): Promise<string> {
   });
 }
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const waTarget = await askWaTarget(env.VITE_WA_SERVER_URL);
+
+  // El proxy WA solo aplica en desarrollo (npm run dev)
+  // En build/producción se omite para no colgar el proceso
+  const serverConfig = command === 'serve'
+    ? {
+        port: 2001,
+        strictPort: true,
+        allowedHosts: true as true,
+        proxy: {
+          '/wa': {
+            target: await askWaTarget(env.VITE_WA_SERVER_URL),
+            changeOrigin: true,
+            rewrite: (p: string) => p.replace(/^\/wa/, ''),
+          },
+        },
+      }
+    : {};
 
   return {
     plugins: [react(), siiPlugin()],
-    server: {
-      port: 2001,
-      strictPort: true,
-      allowedHosts: true,
-      proxy: {
-        '/wa': {
-          target: waTarget,
-          changeOrigin: true,
-          rewrite: (p) => p.replace(/^\/wa/, ''),
-        },
-      },
-    },
+    server: serverConfig,
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
