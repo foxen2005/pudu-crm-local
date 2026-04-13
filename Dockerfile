@@ -4,10 +4,7 @@ FROM node:20-slim AS builder
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_PUBLISHABLE_KEY
 ARG VITE_SUPABASE_PROJECT_ID
-
-ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
-ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
-ENV VITE_SUPABASE_PROJECT_ID=$VITE_SUPABASE_PROJECT_ID
+ARG VITE_WA_SERVER_URL=http://3.143.245.74:3001
 
 WORKDIR /app
 
@@ -15,6 +12,13 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# Vite lee .env, no process.env — escribimos el archivo antes del build
+RUN echo "VITE_SUPABASE_URL=${VITE_SUPABASE_URL}" > .env \
+ && echo "VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}" >> .env \
+ && echo "VITE_SUPABASE_PROJECT_ID=${VITE_SUPABASE_PROJECT_ID}" >> .env \
+ && echo "VITE_WA_SERVER_URL=${VITE_WA_SERVER_URL}" >> .env
+
 RUN npm run build
 
 # ── Stage 2: Serve con nginx ──────────────────────────────────────────────────
