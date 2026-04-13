@@ -1,13 +1,30 @@
 steps:
+  # 1. Build la imagen con las credenciales de Supabase bakeadas
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '--build-arg=VITE_SUPABASE_URL=https://geeqarqcclvnfeirvqpz.supabase.co'
       - '--build-arg=VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlZXFhcnFjY2x2bmZlaXJ2cXB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTg4MTEsImV4cCI6MjA4OTk3NDgxMX0.RtID_Dadewv57TtDeVwA4ZwrNJkFXodJR-Mb7xylnyU'
       - '--build-arg=VITE_SUPABASE_PROJECT_ID=geeqarqcclvnfeirvqpz'
+      - '--build-arg=VITE_WA_SERVER_URL=http://3.143.245.74:3001'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm:$COMMIT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm:latest'
       - '.'
 
+  # 2. Deploy a Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pudu-crm'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pudu-crm:latest'
