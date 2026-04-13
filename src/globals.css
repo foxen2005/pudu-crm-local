@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* === Obsidian Orchid Palette === */
@@ -50,6 +51,9 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+  .dark .glass-panel {
+    background: rgba(30, 26, 46, 0.85);
+  }
 }
 
 @layer utilities {
@@ -61,6 +65,31 @@
     scrollbar-width: none;
   }
 }
+
+/* ─── Dark mode token overrides ────────────────────────────────────────────── */
+.dark {
+  --color-surface: #13111a;
+  --color-surface-container: #1e1a2e;
+  --color-surface-container-low: rgba(30, 26, 46, 0.85);
+  --color-surface-container-high: #252035;
+  --color-surface-container-highest: #2d2840;
+  --color-surface-dim: #0f0e17;
+  --color-on-surface: #ede8f5;
+  --color-on-surface-variant: #b5adc8;
+  --color-outline: #2d2840;
+  --color-outline-variant: #3d3658;
+  color-scheme: dark;
+}
+
+/* ─── Dark mode text palette (#85a1b9 base) ─────────────────────────────────
+   Sobrescribe los dark:text-slate-* generados por Tailwind.
+   Jerarquía: headings más claros → body en #85a1b9 → muted más oscuro.
+   ─────────────────────────────────────────────────────────────────────────── */
+:where(.dark, .dark *) .dark\:text-slate-100 { color: #c2d5e3; }
+:where(.dark, .dark *) .dark\:text-slate-200 { color: #a8c0d2; }
+:where(.dark, .dark *) .dark\:text-slate-300 { color: #85a1b9; }
+:where(.dark, .dark *) .dark\:text-slate-400 { color: #6b8099; }
+:where(.dark, .dark *) .dark\:text-slate-500 { color: #567086; }
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;

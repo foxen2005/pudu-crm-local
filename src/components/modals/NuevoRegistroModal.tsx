@@ -52,18 +52,18 @@ export function NuevoRegistroModal({ open, onClose, onSelect }: NuevoRegistroMod
               type="button"
               onClick={() => handleSelect(tile.type)}
               className={cn(
-                'group flex flex-col items-start gap-3 p-5 rounded-xl border-2 border-slate-200 bg-white text-left',
-                'hover:border-primary hover:bg-primary/5 transition-all duration-150'
+                'group flex flex-col items-start gap-3 p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-[#252035] text-left',
+                'hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all duration-150'
               )}
             >
-              <div className="size-12 rounded-xl bg-slate-100 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined text-2xl text-slate-500 group-hover:text-primary transition-colors">
+              <div className="size-12 rounded-xl bg-slate-100 dark:bg-slate-700 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+                <span className="material-symbols-outlined text-2xl text-slate-500 dark:text-slate-300 group-hover:text-primary transition-colors">
                   {tile.icon}
                 </span>
               </div>
               <div>
-                <p className="text-sm font-black text-slate-900 mb-0.5">{tile.title}</p>
-                <p className="text-[11px] text-slate-500 leading-snug">{tile.desc}</p>
+                <p className="text-sm font-black text-slate-900 dark:text-slate-100 mb-0.5">{tile.title}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{tile.desc}</p>
               </div>
             </button>
           ))}

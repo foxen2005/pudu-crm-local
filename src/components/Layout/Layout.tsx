@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Outlet, useOutletContext } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, useOutletContext, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { RightPanel } from './RightPanel';
 import { FloatingCommandBar } from './CommandBar';
@@ -8,6 +8,11 @@ import { NuevoContactoModal } from '@/components/modals/NuevoContactoModal';
 import { NuevaEmpresaModal } from '@/components/modals/NuevaEmpresaModal';
 import { NuevoNegocioModal } from '@/components/modals/NuevoNegocioModal';
 import { NuevaActividadModal } from '@/components/modals/NuevaActividadModal';
+import { useAuth } from '@/lib/auth';
+import { useDarkMode } from '@/lib/darkMode';
+import { evaluarAutomatizaciones } from '@/lib/db';
+import { GlobalSearch } from './GlobalSearch';
+import { NotificationBell } from './NotificationBell';
 
 type RightPanelContext = {
   openRightPanel: (title: string, content: React.ReactNode) => void;
@@ -29,6 +34,15 @@ interface LayoutProps {
 type EntityType = 'contacto' | 'empresa' | 'negocio' | 'actividad' | null;
 
 export function Layout({ children }: LayoutProps) {
+  const { signOut } = useAuth();
+  const { dark, toggle } = useDarkMode();
+
+  // Ejecutar automatizaciones activas al cargar la app
+  useEffect(() => {
+    evaluarAutomatizaciones();
+  }, []);
+  const location = useLocation();
+  const isFullscreen = location.pathname === '/whatsapp';
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [rightPanelTitle, setRightPanelTitle] = useState('');
   const [rightPanelContent, setRightPanelContent] = useState<React.ReactNode>(null);
@@ -62,29 +76,42 @@ export function Layout({ children }: LayoutProps) {
       {/* Main area offset by sidebar width */}
       <div className="flex-1 flex flex-col ml-64 min-w-0">
         {/* Header */}
-        <header className="h-14 flex-shrink-0 flex items-center justify-end px-8 bg-white/70 backdrop-blur-md border-b border-slate-100 z-40">
+        <header className="h-14 flex-shrink-0 flex items-center justify-between px-8 bg-white/70 dark:bg-[#1e1a2e]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-700/50 z-40">
+          <GlobalSearch />
           <div className="flex items-center gap-3">
-            <button className="size-9 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 relative transition-colors">
-              <span className="material-symbols-outlined text-xl">notifications</span>
-              <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full" />
-            </button>
             <button
-              onClick={openNuevoRegistro}
-              className="bg-primary text-white text-xs font-bold h-9 px-4 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5"
+              onClick={toggle}
+              className="size-9 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"
+              title={dark ? 'Modo claro' : 'Modo oscuro'}
             >
-              <span className="material-symbols-outlined text-base">add</span>
-              Nuevo
+              <span className="material-symbols-outlined text-xl">
+                {dark ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
+            <NotificationBell />
+            <button
+              onClick={() => signOut()}
+              className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:bg-red-50 hover:text-red-500 hover:border-red-200 dark:hover:bg-red-900/30 dark:hover:text-red-400 dark:hover:border-red-800 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm">logout</span>
+              Salir
             </button>
           </div>
         </header>
 
         {/* Scrollable content — pb-32 makes room for floating command bar */}
-        <main className="flex-1 overflow-y-auto pb-32 overflow-x-hidden">
-          <div className="p-8">
-            {children || (
-              <Outlet context={{ openRightPanel, closeRightPanel, openNuevoRegistro }} />
-            )}
-          </div>
+        <main className={`flex-1 overflow-x-hidden ${isFullscreen ? 'overflow-hidden flex flex-col min-h-0' : 'overflow-y-auto pb-32'}`}>
+          {isFullscreen ? (
+            <div>
+              {children}
+            </div>
+          ) : (
+            <div className="p-8">
+              {children || (
+                <Outlet context={{ openRightPanel, closeRightPanel, openNuevoRegistro }} />
+              )}
+            </div>
+          )}
         </main>
       </div>
 

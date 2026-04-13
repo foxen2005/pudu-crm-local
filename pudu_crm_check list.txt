@@ -1,0 +1,111 @@
+PUDU CRM - SISTEMA COMPLETO (CHECKLIST)
+
+1.  FUNDACIÓN
+
+-   Multi-tenant (empresas, usuarios, roles)
+-   Autenticación (login, registro, recuperación)
+
+2.  CORE CRM
+
+-   Contacts
+-   Companies
+-   Deals
+-   Activities
+-   Tasks
+-   Notes
+-   Events (timeline)
+
+3.  DASHBOARD
+
+-   Daily Focus (acción diaria)
+-   Pipeline snapshot
+-   Activity feed
+-   Insights IA
+-   Tasks today
+-   Gamificación ligera (progreso diario)
+
+4.  CONTACT MANAGEMENT
+
+-   CRUD completo
+-   Campos: nombre, email, teléfono, RUT, empresa, tags, owner
+
+5.  CUSTOMER 360
+
+-   Perfil cliente
+-   Deals asociados
+-   Actividades
+-   Notas
+-   Timeline completo
+
+6.  PIPELINE
+
+-   Kanban de ventas
+-   Etapas: Lead, Contactado, Propuesta, Negociación, Ganado
+
+7.  COMMAND ENGINE
+
+-   Barra global tipo comando
+-   Autocomplete predictivo
+-   Fuzzy search
+-   Acciones rápidas (crear, buscar, registrar)
+
+8.  ACTIVIDADES Y TAREAS
+
+-   Llamadas, emails, reuniones
+-   Tareas con asignación y fechas
+
+9.  AUTOMATIZACIÓN
+
+-   Trigger → Condition → Action
+-   Ej: nuevo lead → asignar → crear tarea
+
+10. AI INSIGHTS
+
+-   Clientes inactivos
+-   Leads potenciales
+-   Problemas en pipeline
+-   Recomendaciones
+
+11. GAMIFICACIÓN
+
+-   Progreso diario
+-   Acciones del usuario
+-   Ranking de equipo (admin)
+
+12. EMAIL
+
+-   Gmail, Outlook, IMAP
+-   Sincronización con timeline
+
+13. CAPTURA DE LEADS
+
+-   Formularios
+-   Email
+-   API
+
+14. SISTEMA DE APPS
+
+Apps iniciales: - Email Campaigns - Forms - Reports
+
+Apps clave LATAM: - WhatsApp CRM (mensajes, leads automáticos) - SMS
+marketing
+
+Apps de negocio: - Facturación - Inventario - POS (futuro)
+
+Apps avanzadas: - Chatbots - Call center - Analytics avanzado
+
+15. UX/UI
+
+-   Command bar protagonista
+-   Daily Focus claro
+-   Diseño limpio tipo Linear/Stripe
+-   Enfoque en acción
+
+16. ESCALABILIDAD
+
+-   API
+-   Webhooks
+-   Eventos del sistema
+
+OBJETIVO FINAL CRM simple por fuera, inteligente por dentro, que diga al
+usuario qué hacer y reduzca fricción.
