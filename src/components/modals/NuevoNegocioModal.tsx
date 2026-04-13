@@ -119,10 +119,10 @@ export function NuevoNegocioModal({
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const payload = { ...form, pipeline_id: pipelineId || undefined, campos_extra: camposExtra };
+    const payload = { ...form, pipeline_id: pipelineId || undefined, campos_extra: camposExtra } as Record<string, unknown>;
     const result = negocio
-      ? await actualizarNegocio(negocio.id, payload)
-      : await crearNegocio(payload);
+      ? await actualizarNegocio(negocio.id, payload as Record<string, string>)
+      : await crearNegocio(payload as Record<string, string>);
     setLoading(false);
     if (!result.ok) { setError(result.error); return; }
     if (!negocio) { setForm(defaultForm); setCamposExtra({}); setPipelineId(''); }

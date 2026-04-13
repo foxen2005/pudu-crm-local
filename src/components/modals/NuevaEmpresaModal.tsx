@@ -76,7 +76,7 @@ export function NuevaEmpresaModal({
       }
     }
 
-    const payload = { ...form, campos_extra: camposExtra };
+    const payload = { ...form, campos_extra: camposExtra } as Record<string, string>;
     const result = empresa
       ? await actualizarEmpresa(empresa.id, payload)
       : await crearEmpresa(payload);

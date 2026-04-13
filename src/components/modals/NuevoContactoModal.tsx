@@ -166,7 +166,7 @@ export function NuevoContactoModal({
       }
     }
 
-    const payload = { ...form, campos_extra: camposExtra };
+    const payload = { ...form, campos_extra: camposExtra } as Record<string, string>;
     const result = contacto
       ? await actualizarContacto(contacto.id, payload)
       : await crearContacto(payload);
