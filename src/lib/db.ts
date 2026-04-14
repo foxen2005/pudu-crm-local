@@ -344,10 +344,14 @@ export async function getActividades(): Promise<DbResult<Actividad[]>> {
 }
 
 export async function toggleActividad(id: string, completada: boolean): Promise<void> {
-  await supabase.from('actividades').update({ completada }).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return;
+  await supabase.from('actividades').update({ completada }).eq('id', id).eq('org_id', org_id);
 }
 
 export async function actualizarActividad(id: string, data: Record<string, string>): Promise<DbResult<Actividad>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data: row, error } = await supabase
     .from('actividades')
     .update({
@@ -360,6 +364,7 @@ export async function actualizarActividad(id: string, data: Record<string, strin
       prioridad: data.prioridad || 'Media',
     })
     .eq('id', id)
+    .eq('org_id', org_id)
     .select()
     .single();
   if (error) return { ok: false, error: error.message };
@@ -377,6 +382,8 @@ export async function eliminarActividad(id: string): Promise<DbResult<null>> {
 // ─── Update / Delete ──────────────────────────────────────────────────────────
 
 export async function actualizarEmpresa(id: string, data: Record<string, string>): Promise<DbResult<Empresa>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data: row, error } = await supabase
     .from('empresas')
     .update({
@@ -389,6 +396,7 @@ export async function actualizarEmpresa(id: string, data: Record<string, string>
       tamano: data.tamano || null,
     })
     .eq('id', id)
+    .eq('org_id', org_id)
     .select()
     .single();
   if (error) return { ok: false, error: error.message };
@@ -404,6 +412,8 @@ export async function eliminarEmpresa(id: string): Promise<DbResult<null>> {
 }
 
 export async function actualizarContacto(id: string, data: Record<string, string>): Promise<DbResult<Contacto>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   // Re-resolve empresa_id when empresa name changes
   let empresa_id: string | null = null;
   if (data.empresa) {
@@ -427,6 +437,7 @@ export async function actualizarContacto(id: string, data: Record<string, string
       estado: data.estado,
     })
     .eq('id', id)
+    .eq('org_id', org_id)
     .select()
     .single();
   if (error) return { ok: false, error: error.message };
@@ -442,6 +453,8 @@ export async function eliminarContacto(id: string): Promise<DbResult<null>> {
 }
 
 export async function actualizarNegocio(id: string, data: Record<string, string>): Promise<DbResult<Negocio>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data: row, error } = await supabase
     .from('negocios')
     .update({
@@ -456,6 +469,7 @@ export async function actualizarNegocio(id: string, data: Record<string, string>
       riesgo: data.riesgo === 'true',
     })
     .eq('id', id)
+    .eq('org_id', org_id)
     .select()
     .single();
   if (error) return { ok: false, error: error.message };
@@ -493,7 +507,9 @@ export async function getMiembros(): Promise<DbResult<Miembro[]>> {
 }
 
 export async function actualizarMiembro(userId: string, nombre: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('miembros').update({ nombre }).eq('user_id', userId);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('miembros').update({ nombre }).eq('user_id', userId).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -635,26 +651,32 @@ export type ContactoTimeline = { actividades: Actividad[]; negocios: Negocio[] }
 export type EmpresaData360 = { contactos: Contacto[]; negocios: Negocio[] };
 
 export async function getContactoById(id: string): Promise<Contacto | null> {
-  const { data } = await supabase.from('contactos').select('*').eq('id', id).single();
+  const org_id = await getOrgId();
+  if (!org_id) return null;
+  const { data } = await supabase.from('contactos').select('*').eq('id', id).eq('org_id', org_id).single();
   return data ?? null;
 }
 
 export async function getTimelineContacto(nombre: string, contacto_id?: string): Promise<ContactoTimeline> {
+  const org_id = await getOrgId();
+  if (!org_id) return { actividades: [], negocios: [] };
   const [a, n] = await Promise.all([
     contacto_id
-      ? supabase.from('actividades').select('*').eq('contacto_id', contacto_id).order('fecha_hora', { ascending: false }).limit(100)
-      : supabase.from('actividades').select('*').ilike('relacionado', `%${nombre}%`).order('fecha_hora', { ascending: false }).limit(10),
+      ? supabase.from('actividades').select('*').eq('org_id', org_id).eq('contacto_id', contacto_id).order('fecha_hora', { ascending: false }).limit(100)
+      : supabase.from('actividades').select('*').eq('org_id', org_id).ilike('relacionado', `%${nombre}%`).order('fecha_hora', { ascending: false }).limit(10),
     contacto_id
-      ? supabase.from('negocios').select('*').eq('contacto_id', contacto_id).order('created_at', { ascending: false }).limit(100)
-      : supabase.from('negocios').select('*').ilike('contacto_nombre', `%${nombre}%`).order('created_at', { ascending: false }).limit(10),
+      ? supabase.from('negocios').select('*').eq('org_id', org_id).eq('contacto_id', contacto_id).order('created_at', { ascending: false }).limit(100)
+      : supabase.from('negocios').select('*').eq('org_id', org_id).ilike('contacto_nombre', `%${nombre}%`).order('created_at', { ascending: false }).limit(10),
   ]);
   return { actividades: a.data ?? [], negocios: n.data ?? [] };
 }
 
 export async function getEmpresaData360(nombre: string): Promise<EmpresaData360> {
+  const org_id = await getOrgId();
+  if (!org_id) return { contactos: [], negocios: [] };
   const [c, n] = await Promise.all([
-    supabase.from('contactos').select('*').ilike('empresa_nombre', `%${nombre}%`).order('nombre'),
-    supabase.from('negocios').select('*').ilike('empresa_nombre', `%${nombre}%`).order('created_at', { ascending: false }),
+    supabase.from('contactos').select('*').eq('org_id', org_id).ilike('empresa_nombre', `%${nombre}%`).order('nombre'),
+    supabase.from('negocios').select('*').eq('org_id', org_id).ilike('empresa_nombre', `%${nombre}%`).order('created_at', { ascending: false }),
   ]);
   return { contactos: c.data ?? [], negocios: n.data ?? [] };
 }
@@ -683,23 +705,29 @@ export type SearchResult = {
 
 export async function busquedaGlobal(query: string): Promise<SearchResult[]> {
   if (!query || query.length < 2) return [];
+  const org_id = await getOrgId();
+  if (!org_id) return [];
   const q = `%${query}%`;
 
   const [contactosRes, empresasRes, negociosRes, actividadesRes] = await Promise.all([
     supabase.from('contactos')
       .select('id, nombre, apellido, empresa_nombre, estado')
+      .eq('org_id', org_id)
       .or(`nombre.ilike.${q},apellido.ilike.${q},empresa_nombre.ilike.${q},email.ilike.${q}`)
       .limit(4),
     supabase.from('empresas')
       .select('id, razon_social, ciudad, giro')
+      .eq('org_id', org_id)
       .or(`razon_social.ilike.${q},rut.ilike.${q},ciudad.ilike.${q}`)
       .limit(4),
     supabase.from('negocios')
       .select('id, nombre, empresa_nombre, etapa, valor')
+      .eq('org_id', org_id)
       .or(`nombre.ilike.${q},empresa_nombre.ilike.${q}`)
       .limit(3),
     supabase.from('actividades')
       .select('id, titulo, tipo, relacionado')
+      .eq('org_id', org_id)
       .or(`titulo.ilike.${q},relacionado.ilike.${q}`)
       .limit(3),
   ]);
@@ -1114,9 +1142,12 @@ export async function getWaConversaciones(): Promise<DbResult<WaConversacion[]>>
 }
 
 export async function getWaMensajes(conversationId: string): Promise<DbResult<WaMensaje[]>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data, error } = await supabase
     .from('whatsapp_messages')
     .select('*')
+    .eq('org_id', org_id)
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true });
   if (error) return { ok: false, error: error.message };
@@ -1333,13 +1364,15 @@ export async function subirAdjunto(
 }
 
 export async function eliminarAdjunto(id: string, url: string): Promise<void> {
+  const org_id = await getOrgId();
+  if (!org_id) return;
   const marker = '/adjuntos/';
   const idx = url.indexOf(marker);
   if (idx !== -1) {
     const path = decodeURIComponent(url.slice(idx + marker.length));
     await supabase.storage.from('adjuntos').remove([path]);
   }
-  await supabase.from('adjuntos').delete().eq('id', id);
+  await supabase.from('adjuntos').delete().eq('id', id).eq('org_id', org_id);
 }
 
 // ─── Cotizaciones ──────────────────────────────────────────────────────────────
@@ -1370,9 +1403,12 @@ export type Cotizacion = {
 };
 
 export async function getCotizaciones(negocioId: string): Promise<Cotizacion[]> {
+  const org_id = await getOrgId();
+  if (!org_id) return [];
   const { data } = await supabase
     .from('cotizaciones')
     .select('*, cotizacion_items(*)')
+    .eq('org_id', org_id)
     .eq('negocio_id', negocioId)
     .order('created_at', { ascending: false });
   return (data ?? []).map((c: Record<string, unknown>) => ({ ...c, items: (c.cotizacion_items as CotizacionItem[]) ?? [] })) as Cotizacion[];
@@ -1402,7 +1438,9 @@ export async function actualizarCotizacion(
   fields: Partial<Pick<Cotizacion, 'titulo' | 'fecha' | 'validez_dias' | 'moneda' | 'notas' | 'estado'>>,
   items?: Pick<CotizacionItem, 'descripcion' | 'cantidad' | 'precio_unitario' | 'descuento'>[]
 ): Promise<boolean> {
-  const { error } = await supabase.from('cotizaciones').update(fields).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return false;
+  const { error } = await supabase.from('cotizaciones').update(fields).eq('id', id).eq('org_id', org_id);
   if (error) return false;
   if (items !== undefined) {
     await supabase.from('cotizacion_items').delete().eq('cotizacion_id', id);
@@ -1414,7 +1452,9 @@ export async function actualizarCotizacion(
 }
 
 export async function eliminarCotizacion(id: string): Promise<void> {
-  await supabase.from('cotizaciones').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return;
+  await supabase.from('cotizaciones').delete().eq('id', id).eq('org_id', org_id);
 }
 
 // ─── Notificaciones ────────────────────────────────────────────────────────────
@@ -1445,7 +1485,9 @@ export async function getAlertas(limite = 30): Promise<Notificacion[]> {
 }
 
 export async function marcarLeida(id: string): Promise<void> {
-  await supabase.from('notificaciones').update({ leida: true }).eq('id', id);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('notificaciones').update({ leida: true }).eq('id', id).eq('user_id', user.id);
 }
 
 export async function marcarTodasLeidas(): Promise<void> {
@@ -1502,12 +1544,16 @@ export async function crearProducto(fields: Pick<Producto, 'nombre' | 'descripci
 }
 
 export async function actualizarProducto(id: string, fields: Partial<Pick<Producto, 'nombre' | 'descripcion' | 'precio' | 'unidad' | 'categoria' | 'activo'>>): Promise<boolean> {
-  const { error } = await supabase.from('productos').update(fields).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return false;
+  const { error } = await supabase.from('productos').update(fields).eq('id', id).eq('org_id', org_id);
   return !error;
 }
 
 export async function eliminarProducto(id: string): Promise<void> {
-  await supabase.from('productos').update({ activo: false }).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return;
+  await supabase.from('productos').update({ activo: false }).eq('id', id).eq('org_id', org_id);
 }
 
 // ─── Emails enviados (tracking) ────────────────────────────────────────────────
@@ -1540,9 +1586,12 @@ export async function registrarEmailEnviado(
 }
 
 export async function getEmailsEnviados(contactoId: string): Promise<EmailEnviado[]> {
+  const org_id = await getOrgId();
+  if (!org_id) return [];
   const { data } = await supabase
     .from('emails_enviados')
     .select('*')
+    .eq('org_id', org_id)
     .eq('contacto_id', contactoId)
     .order('enviado_at', { ascending: false });
   return data ?? [];
@@ -1583,7 +1632,9 @@ export async function crearCampoDefinicion(
 }
 
 export async function eliminarCampoDefinicion(id: string): Promise<void> {
-  await supabase.from('campos_definicion').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return;
+  await supabase.from('campos_definicion').delete().eq('id', id).eq('org_id', org_id);
 }
 
 export async function guardarCamposExtra(
@@ -1591,7 +1642,9 @@ export async function guardarCamposExtra(
   id: string,
   campos: Record<string, unknown>
 ): Promise<void> {
-  await supabase.from(tabla).update({ campos_extra: campos }).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return;
+  await supabase.from(tabla).update({ campos_extra: campos }).eq('id', id).eq('org_id', org_id);
 }
 
 // ─── Pipelines ─────────────────────────────────────────────────────────────────
@@ -1627,12 +1680,16 @@ export async function crearPipeline(fields: Pick<Pipeline, 'nombre' | 'etapas' |
 }
 
 export async function actualizarPipeline(id: string, fields: Partial<Pick<Pipeline, 'nombre' | 'etapas' | 'color' | 'activo' | 'orden'>>): Promise<boolean> {
-  const { error } = await supabase.from('pipelines').update(fields).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return false;
+  const { error } = await supabase.from('pipelines').update(fields).eq('id', id).eq('org_id', org_id);
   return !error;
 }
 
 export async function eliminarPipeline(id: string): Promise<void> {
-  await supabase.from('pipelines').update({ activo: false }).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return;
+  await supabase.from('pipelines').update({ activo: false }).eq('id', id).eq('org_id', org_id);
 }
 
 // ─── Duplicados ────────────────────────────────────────────────────────────────
@@ -1687,33 +1744,37 @@ export async function buscarDuplicadosEmpresa(nombre: string, rut?: string): Pro
 }
 
 export async function mergeContactos(keepId: string, deleteId: string): Promise<boolean> {
+  const org_id = await getOrgId();
+  if (!org_id) return false;
   try {
-    await supabase.from('actividades').update({ contacto_id: keepId }).eq('contacto_id', deleteId);
-    const { data: keep } = await supabase.from('contactos').select('campos_extra, telefono, email, cargo').eq('id', keepId).single();
-    const { data: del  } = await supabase.from('contactos').select('campos_extra, telefono, email, cargo').eq('id', deleteId).single();
+    await supabase.from('actividades').update({ contacto_id: keepId }).eq('contacto_id', deleteId).eq('org_id', org_id);
+    const { data: keep } = await supabase.from('contactos').select('campos_extra, telefono, email, cargo').eq('id', keepId).eq('org_id', org_id).single();
+    const { data: del  } = await supabase.from('contactos').select('campos_extra, telefono, email, cargo').eq('id', deleteId).eq('org_id', org_id).single();
     if (keep && del) {
       const mergedCampos = { ...(del.campos_extra ?? {}), ...(keep.campos_extra ?? {}) };
       const patch: Record<string, unknown> = { campos_extra: mergedCampos };
       if (!keep.telefono && del.telefono) patch.telefono = del.telefono;
       if (!keep.email    && del.email)    patch.email    = del.email;
       if (!keep.cargo    && del.cargo)    patch.cargo    = del.cargo;
-      await supabase.from('contactos').update(patch).eq('id', keepId);
+      await supabase.from('contactos').update(patch).eq('id', keepId).eq('org_id', org_id);
     }
-    await supabase.from('contactos').delete().eq('id', deleteId);
+    await supabase.from('contactos').delete().eq('id', deleteId).eq('org_id', org_id);
     return true;
   } catch { return false; }
 }
 
 export async function mergeEmpresas(keepId: string, deleteId: string): Promise<boolean> {
+  const org_id = await getOrgId();
+  if (!org_id) return false;
   try {
-    await supabase.from('contactos').update({ empresa_id: keepId }).eq('empresa_id', deleteId);
-    await supabase.from('negocios').update({ empresa_id: keepId }).eq('empresa_id', deleteId);
-    const { data: keep } = await supabase.from('empresas').select('campos_extra').eq('id', keepId).single();
-    const { data: del } = await supabase.from('empresas').select('campos_extra').eq('id', deleteId).single();
+    await supabase.from('contactos').update({ empresa_id: keepId }).eq('empresa_id', deleteId).eq('org_id', org_id);
+    await supabase.from('negocios').update({ empresa_id: keepId }).eq('empresa_id', deleteId).eq('org_id', org_id);
+    const { data: keep } = await supabase.from('empresas').select('campos_extra').eq('id', keepId).eq('org_id', org_id).single();
+    const { data: del } = await supabase.from('empresas').select('campos_extra').eq('id', deleteId).eq('org_id', org_id).single();
     if (keep && del) {
-      await supabase.from('empresas').update({ campos_extra: { ...(del.campos_extra ?? {}), ...(keep.campos_extra ?? {}) } }).eq('id', keepId);
+      await supabase.from('empresas').update({ campos_extra: { ...(del.campos_extra ?? {}), ...(keep.campos_extra ?? {}) } }).eq('id', keepId).eq('org_id', org_id);
     }
-    await supabase.from('empresas').delete().eq('id', deleteId);
+    await supabase.from('empresas').delete().eq('id', deleteId).eq('org_id', org_id);
     return true;
   } catch { return false; }
 }

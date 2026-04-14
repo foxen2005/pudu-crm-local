@@ -70,6 +70,7 @@ export async function getUnmatchedWaConversations(): Promise<UnmatchedWaConversa
   const { data: allContacts } = await supabase
     .from('contactos')
     .select('id, nombre, apellido, email, telefono, cargo, empresa_nombre, estado, created_at')
+    .eq('org_id', org_id)
     .not('telefono', 'is', null);
 
   const contacts: Contacto[] = (allContacts ?? []).map(c => ({
@@ -165,9 +166,11 @@ export async function getUnmatchedGmailSenders(): Promise<UnmatchedGmailSender[]
   if (senderMap.size === 0) return [];
 
   // Load all contacts with email to check matches
+  const org_id = await getOrgId();
   const { data: allContacts } = await supabase
     .from('contactos')
     .select('id, nombre, apellido, email, telefono, cargo, empresa_nombre, estado, created_at')
+    .eq('org_id', org_id)
     .not('email', 'is', null);
 
   const contacts: Contacto[] = (allContacts ?? []).map(c => ({ ...c, rut: null, empresa_id: null }));

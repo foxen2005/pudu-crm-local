@@ -9,6 +9,7 @@ import {
 import { isGoogleConnected } from '@/lib/useGoogleData';
 import { supabase } from '@/lib/supabase';
 import { NuevoContactoModal } from '@/components/modals/NuevoContactoModal';
+import { useAuth } from '@/lib/auth';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -32,11 +33,12 @@ function avatarColor(text: string): string {
 
 // ─── Assign WA conversation to existing contact ───────────────────────────────
 
-async function linkWaToContact(conversationId: string, contactId: string): Promise<void> {
+async function linkWaToContact(conversationId: string, contactId: string, orgId: string): Promise<void> {
   await supabase
     .from('whatsapp_conversations')
     .update({ contact_id: contactId })
-    .eq('id', conversationId);
+    .eq('id', conversationId)
+    .eq('org_id', orgId);
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -45,6 +47,7 @@ type Tab = 'whatsapp' | 'gmail';
 
 export default function Validaciones() {
   const navigate = useNavigate();
+  const { member } = useAuth();
   const [tab, setTab] = useState<Tab>('whatsapp');
   const [waData, setWaData] = useState<UnmatchedWaConversation[]>([]);
   const [gmailData, setGmailData] = useState<UnmatchedGmailSender[]>([]);
@@ -111,7 +114,7 @@ export default function Validaciones() {
   async function handleLinkToExisting(convId: string, contactId: string, contactName: string) {
     setLinkingConvId(convId);
     try {
-      await linkWaToContact(convId, contactId);
+      await linkWaToContact(convId, contactId, member?.orgId ?? '');
       setWaData(prev => prev.filter(c => c.id !== convId));
       showSuccess(`Vinculado a ${contactName}`);
     } finally {
