@@ -60,7 +60,7 @@ export default function Companies() {
         <h2 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Empresas</h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <StatCard icon="domain" label="Total Empresas" value={loading ? '...' : String(empresas.length)} />
         <StatCard icon="business_center" label="Con RUT registrado" value={loading ? '...' : String(empresas.filter(e => e.rut).length)} color="text-orange-600" />
         <StatCard icon="location_city" label="Ciudades distintas" value={loading ? '...' : String(new Set(empresas.map(e => e.ciudad).filter(Boolean)).size)} color="text-primary" />

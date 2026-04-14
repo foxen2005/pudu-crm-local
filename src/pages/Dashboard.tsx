@@ -130,7 +130,7 @@ export default function Dashboard() {
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
             {[
               { label: 'Empresas', value: loading ? '...' : String(stats.empresas), icon: 'domain', color: 'text-slate-700', to: '/empresas' },
               { label: 'Contactos', value: loading ? '...' : String(stats.contactos), icon: 'contacts', color: 'text-blue-600', to: '/contactos' },
@@ -194,7 +194,7 @@ export default function Dashboard() {
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Embudo de Ventas (CLP)</h3>
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total: {totalPipelineFormatted}</p>
           </div>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 xl:grid-cols-5 gap-2">
             {STAGES.map((stage) => {
               const val = pipelineByStage[stage] ?? 0;
               const isGanado = stage === 'Cierre';

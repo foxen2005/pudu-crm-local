@@ -135,7 +135,7 @@ export default function Automations() {
       )}
 
       {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div className="bg-white dark:bg-[#1e1a2e] rounded-xl p-5 border border-slate-100 dark:border-slate-700/50 shadow-sm flex items-center gap-4">
           <div className="size-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined">bolt</span>

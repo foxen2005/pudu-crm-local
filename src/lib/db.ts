@@ -137,9 +137,12 @@ export async function crearEmpresa(data: Record<string, string>): Promise<DbResu
 }
 
 export async function getEmpresas(): Promise<DbResult<Empresa[]>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data, error } = await supabase
     .from('empresas')
     .select('*')
+    .eq('org_id', org_id)
     .order('created_at', { ascending: false });
 
   if (error) return { ok: false, error: error.message };
@@ -147,9 +150,12 @@ export async function getEmpresas(): Promise<DbResult<Empresa[]>> {
 }
 
 export async function buscarEmpresaPorNombre(nombre: string): Promise<Empresa | null> {
+  const org_id = await getOrgId();
+  if (!org_id) return null;
   const { data } = await supabase
     .from('empresas')
     .select('*')
+    .eq('org_id', org_id)
     .ilike('razon_social', `%${nombre}%`)
     .limit(1)
     .maybeSingle();
@@ -159,9 +165,12 @@ export async function buscarEmpresaPorNombre(nombre: string): Promise<Empresa | 
 // Sugerencias para autocomplete — devuelve hasta 6 coincidencias parciales
 export async function buscarEmpresasSugerencias(query: string): Promise<Empresa[]> {
   if (!query || query.length < 2) return [];
+  const org_id = await getOrgId();
+  if (!org_id) return [];
   const { data } = await supabase
     .from('empresas')
     .select('*')
+    .eq('org_id', org_id)
     .ilike('razon_social', `%${query}%`)
     .limit(6);
   return data ?? [];
@@ -169,12 +178,15 @@ export async function buscarEmpresasSugerencias(query: string): Promise<Empresa[
 
 export async function buscarEmpresaPorRut(rut: string): Promise<Empresa | null> {
   if (!rut) return null;
+  const org_id = await getOrgId();
+  if (!org_id) return null;
   // Usar solo el cuerpo numérico (sin puntos, sin dígito verificador)
   // para que "773144753", "77314475-3" y "77.314.475-3" coincidan igual
   const body = normalizeRut(rut).split('-')[0]; // ej: "77314475"
   const { data } = await supabase
     .from('empresas')
     .select('*')
+    .eq('org_id', org_id)
     .ilike('rut', `%${body}%`)
     .limit(1)
     .maybeSingle();
@@ -230,9 +242,12 @@ export async function crearContacto(data: Record<string, string>): Promise<DbRes
 }
 
 export async function getContactos(): Promise<DbResult<Contacto[]>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data, error } = await supabase
     .from('contactos')
     .select('*')
+    .eq('org_id', org_id)
     .order('created_at', { ascending: false });
 
   if (error) return { ok: false, error: error.message };
@@ -266,6 +281,7 @@ export async function crearNegocio(data: Record<string, string>): Promise<DbResu
       fecha_cierre: data.fechaCierre || null,
       probabilidad: data.probabilidad ? parseInt(data.probabilidad) : null,
       descripcion: data.descripcion || null,
+      riesgo: data.riesgo === 'true',
     })
     .select()
     .single();
@@ -315,9 +331,12 @@ export async function crearActividad(data: Record<string, string>): Promise<DbRe
 }
 
 export async function getActividades(): Promise<DbResult<Actividad[]>> {
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
   const { data, error } = await supabase
     .from('actividades')
     .select('*')
+    .eq('org_id', org_id)
     .order('fecha_hora', { ascending: true });
 
   if (error) return { ok: false, error: error.message };
@@ -348,7 +367,9 @@ export async function actualizarActividad(id: string, data: Record<string, strin
 }
 
 export async function eliminarActividad(id: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('actividades').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('actividades').delete().eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -375,7 +396,9 @@ export async function actualizarEmpresa(id: string, data: Record<string, string>
 }
 
 export async function eliminarEmpresa(id: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('empresas').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('empresas').delete().eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -411,7 +434,9 @@ export async function actualizarContacto(id: string, data: Record<string, string
 }
 
 export async function eliminarContacto(id: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('contactos').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('contactos').delete().eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -438,13 +463,17 @@ export async function actualizarNegocio(id: string, data: Record<string, string>
 }
 
 export async function moverNegocioEtapa(id: string, etapa: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('negocios').update({ etapa }).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('negocios').update({ etapa }).eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
 
 export async function eliminarNegocio(id: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('negocios').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('negocios').delete().eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -765,13 +794,17 @@ export async function crearAutomatizacion(fields: {
 }
 
 export async function toggleAutomatizacion(id: string, activa: boolean): Promise<DbResult<null>> {
-  const { error } = await supabase.from('automatizaciones').update({ activa }).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('automatizaciones').update({ activa }).eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
 
 export async function eliminarAutomatizacion(id: string): Promise<DbResult<null>> {
-  const { error } = await supabase.from('automatizaciones').delete().eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('automatizaciones').delete().eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -784,7 +817,9 @@ export async function actualizarAutomatizacion(id: string, fields: {
   accion_titulo: string;
   accion_tipo_actividad: string;
 }): Promise<DbResult<null>> {
-  const { error } = await supabase.from('automatizaciones').update(fields).eq('id', id);
+  const org_id = await getOrgId();
+  if (!org_id) return { ok: false, error: 'No autenticado' };
+  const { error } = await supabase.from('automatizaciones').update(fields).eq('id', id).eq('org_id', org_id);
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };
 }
@@ -875,7 +910,7 @@ export async function evaluarAutomatizaciones(): Promise<{ fired: number; errors
 
       // Increment counter
       await supabase.from('automatizaciones')
-        .update({ ejecuciones: auto.ejecuciones + fired + 1 })
+        .update({ ejecuciones: auto.ejecuciones + 1 })
         .eq('id', auto.id);
 
       fired++;

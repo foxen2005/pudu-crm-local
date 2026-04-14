@@ -77,7 +77,7 @@ export default function Contacts() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <StatCard icon="contacts" label="Total Contactos" value={loading ? '...' : String(contactos.length)} />
         <StatCard icon="person_check" label="Clientes Activos" value={loading ? '...' : String(contactos.filter(c => c.estado === 'Cliente Activo').length)} color="text-orange-600" />
         <StatCard icon="person_search" label="Prospectos" value={loading ? '...' : String(contactos.filter(c => c.estado === 'Prospecto').length)} color="text-primary" />

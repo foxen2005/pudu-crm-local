@@ -7,8 +7,10 @@ import { WA_URL } from '@/lib/wa-url';
 type Org = { id: string; nombre: string; created_at: string };
 type WaStatus = { connected: boolean; status: string; phone?: string };
 type QrModal = { orgId: string; orgNombre: string } | null;
-type OrgMember = { user_id: string; nombre: string | null; email: string | null; rol: string };
+type OrgMember = { user_id: string; nombre: string | null; email: string | null; rol: string; activo: boolean; last_seen: string | null; created_at: string | null };
 type MemberStat = { acts_total: number; acts_done: number; deals: number; deals_cierre: number; score: number };
+type EditingMember = { userId: string; nombre: string; email: string } | null;
+type ActivityDetail = { userId: string; orgId: string } | null;
 
 const MEDAL = ['🥇', '🥈', '🥉'];
 
@@ -37,6 +39,15 @@ export default function Admin() {
   const [inviteOpen, setInviteOpen] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
+
+  // ── Nuevos estados para gestión de usuarios ──
+  const [editing, setEditing] = useState<EditingMember>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [activityDetail, setActivityDetail] = useState<ActivityDetail>(null);
+  const [activityData, setActivityData] = useState<{ actividades: any[]; negocios: any[] }>({ actividades: [], negocios: [] });
+  const [loadingActivity, setLoadingActivity] = useState(false);
+  const [reassignOpen, setReassignOpen] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   if (!isMaster) return <Navigate to="/" replace />;
 
@@ -131,7 +142,7 @@ export default function Admin() {
     setLoadingMembers(orgId);
     const { data } = await supabase
       .from('miembros')
-      .select('user_id, nombre, email, rol')
+      .select('user_id, nombre, email, rol, activo, last_seen, created_at')
       .eq('org_id', orgId)
       .order('nombre');
     const list = data ?? [];
@@ -162,6 +173,122 @@ export default function Admin() {
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function showToast(msg: string) {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3000);
+  }
+
+  // ── Editar nombre/email ──
+  async function saveEdit() {
+    if (!editing) return;
+    setSavingEdit(true);
+    const updates: Record<string, string> = {};
+    if (editing.nombre.trim()) updates.nombre = editing.nombre.trim();
+    if (editing.email.trim()) updates.email = editing.email.trim();
+    await supabase.from('miembros').update(updates).eq('user_id', editing.userId);
+    // Actualizar estado local
+    for (const orgId of Object.keys(orgMembers)) {
+      setOrgMembers(prev => ({
+        ...prev,
+        [orgId]: (prev[orgId] ?? []).map(m =>
+          m.user_id === editing.userId ? { ...m, ...updates } : m
+        ),
+      }));
+    }
+    setSavingEdit(false);
+    setEditing(null);
+    showToast('Datos actualizados');
+  }
+
+  // ── Resetear contraseña ──
+  async function resetPassword(email: string | null) {
+    if (!email) { showToast('Este usuario no tiene email'); return; }
+    if (!window.confirm(`¿Enviar email de reset de contraseña a ${email}?`)) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/`,
+    });
+    if (error) showToast(`Error: ${error.message}`);
+    else showToast(`Email de reset enviado a ${email}`);
+  }
+
+  // ── Desactivar / Activar cuenta ──
+  async function toggleActivo(orgId: string, userId: string, currentActivo: boolean) {
+    const action = currentActivo ? 'desactivar' : 'activar';
+    if (!window.confirm(`¿${currentActivo ? 'Desactivar' : 'Activar'} esta cuenta? ${currentActivo ? 'El usuario no podrá acceder al sistema.' : 'El usuario podrá volver a acceder.'}`)) return;
+    await supabase.from('miembros').update({ activo: !currentActivo }).eq('user_id', userId).eq('org_id', orgId);
+    setOrgMembers(prev => ({
+      ...prev,
+      [orgId]: (prev[orgId] ?? []).map(m =>
+        m.user_id === userId ? { ...m, activo: !currentActivo } : m
+      ),
+    }));
+    showToast(`Cuenta ${!currentActivo ? 'activada' : 'desactivada'}`);
+  }
+
+  // ── Forzar logout (desactivar + reactivar) ──
+  async function forceLogout(orgId: string, userId: string, nombre: string | null) {
+    if (!window.confirm(`¿Forzar cierre de sesión de "${nombre ?? 'usuario'}"?\nSe desactivará brevemente la cuenta para cerrar todas las sesiones.`)) return;
+    // Desactivar
+    await supabase.from('miembros').update({ activo: false }).eq('user_id', userId).eq('org_id', orgId);
+    // Esperar 2 segundos y reactivar
+    setTimeout(async () => {
+      await supabase.from('miembros').update({ activo: true }).eq('user_id', userId).eq('org_id', orgId);
+      setOrgMembers(prev => ({
+        ...prev,
+        [orgId]: (prev[orgId] ?? []).map(m =>
+          m.user_id === userId ? { ...m, activo: true } : m
+        ),
+      }));
+    }, 2000);
+    showToast('Sesión cerrada — el usuario deberá volver a iniciar sesión');
+  }
+
+  // ── Reasignar a otra org ──
+  async function reassignMember(userId: string, fromOrgId: string, toOrgId: string) {
+    if (fromOrgId === toOrgId) return;
+    const targetOrg = orgs.find(o => o.id === toOrgId);
+    if (!window.confirm(`¿Mover este usuario a "${targetOrg?.nombre}"?`)) return;
+    await supabase.from('miembros').update({ org_id: toOrgId }).eq('user_id', userId).eq('org_id', fromOrgId);
+    // Quitar del panel actual
+    setOrgMembers(prev => ({
+      ...prev,
+      [fromOrgId]: (prev[fromOrgId] ?? []).filter(m => m.user_id !== userId),
+    }));
+    setReassignOpen(null);
+    showToast(`Usuario movido a ${targetOrg?.nombre}`);
+  }
+
+  // ── Ver actividad detallada ──
+  async function loadActivityDetail(orgId: string, userId: string) {
+    if (activityDetail?.userId === userId) { setActivityDetail(null); return; }
+    setActivityDetail({ userId, orgId });
+    setLoadingActivity(true);
+    const [{ data: acts }, { data: deals }] = await Promise.all([
+      supabase.from('actividades').select('*').eq('org_id', orgId).eq('created_by', userId).order('created_at', { ascending: false }).limit(20),
+      supabase.from('negocios').select('*').eq('org_id', orgId).eq('created_by', userId).order('created_at', { ascending: false }).limit(20),
+    ]);
+    setActivityData({ actividades: acts ?? [], negocios: deals ?? [] });
+    setLoadingActivity(false);
+  }
+
+  // ── Helpers de fecha ──
+  function timeAgo(dateStr: string | null): string {
+    if (!dateStr) return 'Nunca';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Ahora';
+    if (mins < 60) return `Hace ${mins}m`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `Hace ${hrs}h`;
+    const days = Math.floor(hrs / 24);
+    return `Hace ${days}d`;
+  }
+
+  function isOnline(lastSeen: string | null): boolean {
+    if (!lastSeen) return false;
+    return Date.now() - new Date(lastSeen).getTime() < 5 * 60 * 1000; // 5 min
   }
 
   // QR polling while modal is open
@@ -237,7 +364,7 @@ export default function Admin() {
 
       <div className="flex-1 px-8 py-8 max-w-5xl mx-auto w-full">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-xl border border-slate-200 p-5">
             <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">Organizaciones</p>
             <p className="text-3xl font-black text-slate-900">{orgs.length}</p>
@@ -404,33 +531,206 @@ export default function Admin() {
                           ) : members.length === 0 ? (
                             <p className="text-xs text-slate-400">Sin miembros</p>
                           ) : (
-                            <div className="space-y-2">
-                              {members.map(m => (
-                                <div key={m.user_id} className="flex items-center justify-between bg-white rounded-lg px-4 py-2.5 border border-slate-100">
-                                  <div className="flex items-center gap-3">
-                                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-black flex-shrink-0">
-                                      {(m.nombre ?? m.email ?? '?').slice(0, 2).toUpperCase()}
+                            <div className="space-y-3">
+                              {members.map(m => {
+                                const online = isOnline(m.last_seen);
+                                const isEditing = editing?.userId === m.user_id;
+                                const isReassigning = reassignOpen === m.user_id;
+                                const showActivity = activityDetail?.userId === m.user_id;
+
+                                return (
+                                  <div key={m.user_id} className={`bg-white rounded-xl border ${m.activo === false ? 'border-red-200 bg-red-50/30' : 'border-slate-100'} overflow-hidden`}>
+                                    {/* ── Fila principal ── */}
+                                    <div className="flex items-center px-4 py-3">
+                                      {/* Avatar + estado online */}
+                                      <div className="relative flex-shrink-0 mr-3">
+                                        <div className={`size-10 rounded-full flex items-center justify-center text-xs font-black ${m.activo === false ? 'bg-red-100 text-red-400' : 'bg-primary/10 text-primary'}`}>
+                                          {(m.nombre ?? m.email ?? '?').slice(0, 2).toUpperCase()}
+                                        </div>
+                                        <span className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white ${online ? 'bg-green-500' : m.activo === false ? 'bg-red-400' : 'bg-slate-300'}`} title={online ? 'Online' : m.activo === false ? 'Desactivado' : 'Offline'} />
+                                      </div>
+
+                                      {/* Info */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <p className={`text-sm font-bold truncate ${m.activo === false ? 'text-red-400 line-through' : 'text-slate-800'}`}>{m.nombre ?? '—'}</p>
+                                          {m.activo === false && <span className="text-[9px] font-bold bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full">DESACTIVADO</span>}
+                                          {online && <span className="text-[9px] font-bold bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full">ONLINE</span>}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400 truncate">{m.email ?? '—'}</p>
+                                        <div className="flex items-center gap-3 mt-0.5">
+                                          <span className="text-[10px] text-slate-300">Ingreso: {m.created_at ? new Date(m.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span>
+                                          <span className="text-[10px] text-slate-300">Último acceso: {timeAgo(m.last_seen)}</span>
+                                        </div>
+                                      </div>
+
+                                      {/* Rol selector */}
+                                      <select
+                                        value={m.rol}
+                                        onChange={e => cambiarRol(org.id, m.user_id, e.target.value)}
+                                        className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 mr-2"
+                                      >
+                                        <option value="admin">Admin</option>
+                                        <option value="colaborador">Colaborador</option>
+                                      </select>
                                     </div>
-                                    <div>
-                                      <p className="text-xs font-bold text-slate-800">{m.nombre ?? '—'}</p>
-                                      <p className="text-[10px] text-slate-400">{m.email ?? '—'}</p>
+
+                                    {/* ── Barra de acciones ── */}
+                                    <div className="flex items-center gap-1 px-3 py-2 bg-slate-50/80 border-t border-slate-100 flex-wrap">
+                                      <button
+                                        onClick={() => setEditing(isEditing ? null : { userId: m.user_id, nombre: m.nombre ?? '', email: m.email ?? '' })}
+                                        className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${isEditing ? 'bg-primary text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                                        title="Editar datos"
+                                      >
+                                        <span className="material-symbols-outlined text-sm">edit</span>
+                                        Editar
+                                      </button>
+                                      <button
+                                        onClick={() => resetPassword(m.email)}
+                                        className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
+                                        title="Enviar email de reset de contraseña"
+                                      >
+                                        <span className="material-symbols-outlined text-sm">lock_reset</span>
+                                        Reset Pass
+                                      </button>
+                                      <button
+                                        onClick={() => toggleActivo(org.id, m.user_id, m.activo !== false)}
+                                        className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${m.activo === false ? 'text-green-600 hover:bg-green-50' : 'text-amber-600 hover:bg-amber-50'}`}
+                                        title={m.activo === false ? 'Activar cuenta' : 'Desactivar cuenta'}
+                                      >
+                                        <span className="material-symbols-outlined text-sm">{m.activo === false ? 'toggle_on' : 'toggle_off'}</span>
+                                        {m.activo === false ? 'Activar' : 'Desactivar'}
+                                      </button>
+                                      <button
+                                        onClick={() => forceLogout(org.id, m.user_id, m.nombre)}
+                                        className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-orange-500 hover:bg-orange-50 rounded-lg transition-all"
+                                        title="Forzar cierre de todas las sesiones"
+                                      >
+                                        <span className="material-symbols-outlined text-sm">logout</span>
+                                        Forzar Logout
+                                      </button>
+                                      <button
+                                        onClick={() => setReassignOpen(isReassigning ? null : m.user_id)}
+                                        className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${isReassigning ? 'bg-blue-500 text-white' : 'text-blue-500 hover:bg-blue-50'}`}
+                                        title="Reasignar a otra organización"
+                                      >
+                                        <span className="material-symbols-outlined text-sm">swap_horiz</span>
+                                        Reasignar
+                                      </button>
+                                      <button
+                                        onClick={() => loadActivityDetail(org.id, m.user_id)}
+                                        className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${showActivity ? 'bg-indigo-500 text-white' : 'text-indigo-500 hover:bg-indigo-50'}`}
+                                        title="Ver actividad detallada"
+                                      >
+                                        <span className="material-symbols-outlined text-sm">timeline</span>
+                                        Actividad
+                                      </button>
+                                      <div className="flex-1" />
+                                      <button onClick={() => eliminarMiembro(org.id, m.user_id)} className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-red-400 hover:bg-red-50 rounded-lg transition-all" title="Eliminar miembro">
+                                        <span className="material-symbols-outlined text-sm">person_remove</span>
+                                        Eliminar
+                                      </button>
                                     </div>
+
+                                    {/* ── Panel edición inline ── */}
+                                    {isEditing && editing && (
+                                      <div className="px-4 py-3 bg-primary/5 border-t border-primary/10 space-y-2">
+                                        <div className="flex items-center gap-2">
+                                          <label className="text-[10px] font-bold text-slate-400 w-14">Nombre</label>
+                                          <input
+                                            type="text"
+                                            value={editing.nombre}
+                                            onChange={e => setEditing({ ...editing, nombre: e.target.value })}
+                                            className="flex-1 px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                                          />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <label className="text-[10px] font-bold text-slate-400 w-14">Email</label>
+                                          <input
+                                            type="email"
+                                            value={editing.email}
+                                            onChange={e => setEditing({ ...editing, email: e.target.value })}
+                                            className="flex-1 px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                                          />
+                                        </div>
+                                        <div className="flex items-center gap-2 justify-end">
+                                          <button onClick={() => setEditing(null)} className="text-xs text-slate-400 hover:text-slate-600 font-semibold">Cancelar</button>
+                                          <button onClick={saveEdit} disabled={savingEdit} className="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 disabled:opacity-50 transition-all">
+                                            {savingEdit ? 'Guardando…' : 'Guardar'}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* ── Panel reasignar org ── */}
+                                    {isReassigning && (
+                                      <div className="px-4 py-3 bg-blue-50/50 border-t border-blue-100 space-y-2">
+                                        <p className="text-[11px] font-semibold text-blue-600">Mover a otra organización:</p>
+                                        <div className="flex flex-wrap gap-2">
+                                          {orgs.filter(o => o.id !== org.id).map(o => (
+                                            <button
+                                              key={o.id}
+                                              onClick={() => reassignMember(m.user_id, org.id, o.id)}
+                                              className="px-3 py-1.5 text-xs font-semibold bg-white border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-100 transition-all"
+                                            >
+                                              {o.nombre}
+                                            </button>
+                                          ))}
+                                          {orgs.filter(o => o.id !== org.id).length === 0 && (
+                                            <p className="text-xs text-slate-400">No hay otras organizaciones disponibles</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* ── Panel actividad detallada ── */}
+                                    {showActivity && (
+                                      <div className="px-4 py-3 bg-indigo-50/30 border-t border-indigo-100">
+                                        {loadingActivity ? (
+                                          <p className="text-xs text-slate-400 text-center py-2">Cargando actividad…</p>
+                                        ) : (
+                                          <div className="grid grid-cols-2 gap-4">
+                                            {/* Actividades recientes */}
+                                            <div>
+                                              <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Actividades recientes ({activityData.actividades.length})</p>
+                                              {activityData.actividades.length === 0 ? (
+                                                <p className="text-xs text-slate-400">Sin actividades</p>
+                                              ) : (
+                                                <div className="space-y-1 max-h-48 overflow-y-auto">
+                                                  {activityData.actividades.map((a: any) => (
+                                                    <div key={a.id} className="flex items-center gap-2 text-xs bg-white rounded-lg px-3 py-1.5 border border-slate-100">
+                                                      <span className={`size-2 rounded-full flex-shrink-0 ${a.completada ? 'bg-green-400' : 'bg-amber-400'}`} />
+                                                      <span className="truncate text-slate-700">{a.titulo}</span>
+                                                      <span className="text-[10px] text-slate-300 ml-auto flex-shrink-0">{timeAgo(a.created_at)}</span>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                            {/* Negocios recientes */}
+                                            <div>
+                                              <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Negocios ({activityData.negocios.length})</p>
+                                              {activityData.negocios.length === 0 ? (
+                                                <p className="text-xs text-slate-400">Sin negocios</p>
+                                              ) : (
+                                                <div className="space-y-1 max-h-48 overflow-y-auto">
+                                                  {activityData.negocios.map((n: any) => (
+                                                    <div key={n.id} className="flex items-center gap-2 text-xs bg-white rounded-lg px-3 py-1.5 border border-slate-100">
+                                                      <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded flex-shrink-0">{n.etapa}</span>
+                                                      <span className="truncate text-slate-700">{n.nombre}</span>
+                                                      <span className="text-[10px] text-slate-300 ml-auto flex-shrink-0">{n.valor ? `$${Number(n.valor).toLocaleString('es-CL')}` : '—'}</span>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <select
-                                      value={m.rol}
-                                      onChange={e => cambiarRol(org.id, m.user_id, e.target.value)}
-                                      className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                                    >
-                                      <option value="admin">Admin</option>
-                                      <option value="colaborador">Colaborador</option>
-                                    </select>
-                                    <button onClick={() => eliminarMiembro(org.id, m.user_id)} className="size-6 flex items-center justify-center rounded hover:bg-red-50 text-slate-300 hover:text-red-500 transition-colors" title="Eliminar miembro">
-                                      <span className="material-symbols-outlined text-sm">person_remove</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           )}
                         </div>
@@ -483,6 +783,13 @@ export default function Admin() {
           )}
         </div>
       </div>
+
+      {/* Toast */}
+      {toastMsg && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl shadow-xl animate-[fadeIn_0.2s]">
+          {toastMsg}
+        </div>
+      )}
 
       {/* QR Modal */}
       {qrModal && (

@@ -376,7 +376,7 @@ export default function Activities() {
       {view === 'HOY' && <div className="flex gap-6 items-start">
         <div className="flex-1 space-y-5">
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { label: 'Actividades Hoy', value: loading ? '...' : String(todayTotal), icon: 'event', color: 'text-primary' },
               { label: 'Completadas', value: loading ? '...' : String(completed), icon: 'task_alt', color: 'text-green-600' },

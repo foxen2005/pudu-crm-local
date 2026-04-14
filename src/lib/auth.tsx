@@ -73,14 +73,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await withTimeout(
       supabase
         .from('miembros')
-        .select('org_id, rol, nombre, email, is_master, organizaciones(nombre)')
+        .select('org_id, rol, nombre, email, is_master, activo, organizaciones(nombre)')
         .eq('user_id', user.id)
-        .maybeSingle() as unknown as Promise<{ data: { org_id: string; rol: string; nombre: string | null; email: string | null; is_master: boolean | null; organizaciones: { nombre: string } | null } | null; error: unknown }>,
+        .maybeSingle() as unknown as Promise<{ data: { org_id: string; rol: string; nombre: string | null; email: string | null; is_master: boolean | null; activo: boolean | null; organizaciones: { nombre: string } | null } | null; error: unknown }>,
       8000,
       { data: null, error: null },
     );
 
     if (!data) return null;
+
+    // Si la cuenta está desactivada, cerrar sesión
+    if (data.activo === false) {
+      await supabase.auth.signOut();
+      clearCache();
+      return null;
+    }
+
+    // Actualizar last_seen en background
+    supabase.rpc('update_my_last_seen').then(() => {});
 
     const member: OrgMember = {
       userId: user.id,

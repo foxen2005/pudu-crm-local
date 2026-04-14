@@ -123,12 +123,12 @@ export default function Deals() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">Pipeline de Ventas</span>
           <h2 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Negocios</h2>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 text-xs font-bold">
             <button
               onClick={() => setVista('pipeline')}
@@ -164,7 +164,7 @@ export default function Deals() {
         </div>
       )}
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Total Pipeline', value: loading ? '...' : formatCLP(totalPipeline), icon: 'attach_money', color: 'text-primary' },
           { label: 'Pipeline Esperado', value: loading ? '...' : formatCLP(Math.round(pipelineEsperado)), icon: 'trending_up', color: 'text-green-600' },
@@ -184,7 +184,7 @@ export default function Deals() {
       {loading ? (
         <div className="flex gap-4">
           {STAGES.map((s) => (
-            <div key={s.id} className="flex-shrink-0 w-64">
+            <div key={s.id} className="flex-1 min-w-[180px]">
               <div className="mb-3 px-1"><div className="h-3 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mb-2 w-24" /></div>
               <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="bg-white dark:bg-[#1e1a2e] rounded-xl p-4 border border-slate-100 dark:border-slate-700/50 shadow-sm h-28 animate-pulse" />)}</div>
             </div>
@@ -209,7 +209,7 @@ export default function Deals() {
             return (
               <div
                 key={stage.id}
-                className="flex-shrink-0 w-64"
+                className="flex-1 min-w-[200px]"
                 onDragOver={e => onDragOver(e, stage.id)}
                 onDragLeave={() => setDragOver(null)}
                 onDrop={e => onDrop(e, stage.id)}

@@ -302,7 +302,7 @@ export default function Reports() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm px-5 py-5">
             <div className="flex items-center justify-between mb-3">
@@ -318,9 +318,9 @@ export default function Reports() {
       </div>
 
       {/* Funnel + Top Deals */}
-      <div className="grid grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 mb-6">
         {/* Funnel */}
-        <div className="col-span-3 bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
+        <div className="xl:col-span-3 bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
           <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 mb-5">Embudo de Conversión</h3>
           {loading ? (
             <div className="space-y-3">{[1,2,3,4,5].map(i => <div key={i} className="h-8 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />)}</div>
@@ -344,7 +344,7 @@ export default function Reports() {
         </div>
 
         {/* Top Deals */}
-        <div className="col-span-2 bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
+        <div className="xl:col-span-2 bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
           <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 mb-5">Top Negocios por Valor</h3>
           {loading ? (
             <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-10 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />)}</div>
@@ -373,9 +373,9 @@ export default function Reports() {
       </div>
 
       {/* Revenue by month + Activities */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Bar chart */}
-        <div className="col-span-2 bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
+        <div className="xl:col-span-2 bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">Pipeline por Mes</h3>
             <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-3 py-1 rounded-full">Últimos 6 meses</span>
