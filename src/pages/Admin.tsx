@@ -89,7 +89,8 @@ export default function Admin() {
 
   async function eliminarOrg(org: Org) {
     if (!window.confirm(`¿Eliminar la organización "${org.nombre}"? Esta acción no se puede deshacer.`)) return;
-    await supabase.from('organizaciones').delete().eq('id', org.id);
+    const { error } = await supabase.from('organizaciones').delete().eq('id', org.id);
+    if (error) { alert(`Error al eliminar: ${error.message}`); return; }
     setOrgs(prev => prev.filter(o => o.id !== org.id));
   }
 
