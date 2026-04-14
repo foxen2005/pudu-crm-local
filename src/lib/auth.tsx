@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('miembros')
         .select('org_id, rol, nombre, email, is_master, organizaciones(nombre)')
         .eq('user_id', user.id)
-        .single() as unknown as Promise<{ data: { org_id: string; rol: string; nombre: string | null; email: string | null; is_master: boolean | null; organizaciones: { nombre: string } | null } | null; error: unknown }>,
+        .maybeSingle() as unknown as Promise<{ data: { org_id: string; rol: string; nombre: string | null; email: string | null; is_master: boolean | null; organizaciones: { nombre: string } | null } | null; error: unknown }>,
       8000,
       { data: null, error: null },
     );
