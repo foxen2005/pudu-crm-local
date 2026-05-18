@@ -1208,7 +1208,7 @@ export async function setWaActivoOrg(activo: boolean): Promise<void> {
 }
 
 // Verifica si el servidor local está activo y conectado
-export async function getWaLocalStatus(orgId?: string): Promise<{ connected: boolean; phone: string | null; qrPending: boolean } | null> {
+export async function getWaLocalStatus(orgId?: string): Promise<{ connected: boolean; phone: string | null; qrPending: boolean; status?: string } | null> {
   try {
     const url = orgId ? `${WA_LOCAL_URL}/status?orgId=${orgId}` : `${WA_LOCAL_URL}/status`;
     const res = await fetch(url, { signal: AbortSignal.timeout(2000) });
@@ -1217,7 +1217,8 @@ export async function getWaLocalStatus(orgId?: string): Promise<{ connected: boo
     return {
       connected: data.connected ?? false,
       phone: data.phone ?? null,
-      qrPending: data.status === 'qr_ready',
+      qrPending: data.status === 'qr_ready' || data.status === 'initializing',
+      status: data.status,
     };
   } catch {
     return null;
