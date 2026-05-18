@@ -681,7 +681,7 @@ export async function getEmpresaData360(nombre: string): Promise<EmpresaData360>
   return { contactos: c.data ?? [], negocios: n.data ?? [] };
 }
 
-// ─── Dispatcher desde el chat ─────────────────────────────────────────────────
+// ─── Dispatcher desde el chat / Triaje ─────────────────────────────────────────
 
 export async function ejecutarAccion(action: PendingAction): Promise<DbResult<unknown>> {
   switch (action.type) {
@@ -691,6 +691,44 @@ export async function ejecutarAccion(action: PendingAction): Promise<DbResult<un
     case 'actividad': return crearActividad(action.data);
     default:          return { ok: false, error: 'Tipo de acción desconocido' };
   }
+}
+
+/**
+ * Ejecuta automatizaciones manuales (como el triaje de correos)
+ * disparando los webhooks configurados.
+ */
+export async function dispararAutomatizacionManual(triggerTipo: string, payload: Record<string, unknown>): Promise<void> {
+  const { data: autos } = await supabase
+    .from('automatizaciones')
+    .select('*')
+    .eq('trigger_tipo', triggerTipo)
+    .eq('activa', true);
+
+  if (!autos || autos.length === 0) return;
+
+  const promises = autos.map(async (auto) => {
+    if (auto.accion_tipo === 'webhook' && auto.webhook_url) {
+      try {
+        await fetch(auto.webhook_url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'manual_trigger',
+            trigger_tipo: triggerTipo,
+            automation_name: auto.nombre,
+            ...payload
+          })
+        });
+
+        // Incrementar contador
+        await supabase.rpc('incrementar_ejecuciones_auto', { auto_id: auto.id });
+      } catch (err) {
+        console.error('Error disparando webhook manual:', err);
+      }
+    }
+  });
+
+  await Promise.all(promises);
 }
 
 // ─── Búsqueda global ──────────────────────────────────────────────────────────

@@ -23,25 +23,41 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    // 1. Validar identidad del usuario (Seguridad contra IDOR)
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401, headers: corsHeaders });
+    }
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authError || !authUser) {
+      return new Response(JSON.stringify({ error: 'Token de sesión inválido' }), { status: 401, headers: corsHeaders });
+    }
+
     let { refresh_token, user_id } = await req.json().catch(() => ({}));
 
-    // Si no viene refresh_token pero sí user_id, buscarlo en la DB
-    if (!refresh_token && user_id) {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
+    // Si se pide un user_id específico, verificar que sea el del usuario autenticado
+    if (user_id && user_id !== authUser.id) {
+      return new Response(JSON.stringify({ error: 'No tienes permiso para renovar tokens de otro usuario' }), { status: 403, headers: corsHeaders });
+    }
+
+    // Si no viene refresh_token, usar siempre el del usuario autenticado persistido en DB
+    if (!refresh_token) {
       const { data } = await supabase
         .from('miembros')
         .select('google_refresh_token')
-        .eq('user_id', user_id)
+        .eq('user_id', authUser.id)
         .single();
       refresh_token = data?.google_refresh_token;
     }
 
     if (!refresh_token) {
       return new Response(
-        JSON.stringify({ error: 'refresh_token o user_id con token persistido requerido' }),
+        JSON.stringify({ error: 'Refresh token no encontrado para este usuario. Reconnecta tu cuenta.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

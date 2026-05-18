@@ -5,6 +5,7 @@ import {
   isGoogleConnected, type GmailMessage, type GmailLabel,
 } from '@/lib/useGoogleData';
 import { GoogleReconnectBanner } from '@/components/GoogleReconnectBanner';
+import { dispararAutomatizacionManual } from '@/lib/db';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -352,6 +353,51 @@ export default function Correo() {
                     <span className="material-symbols-outlined text-sm">delete</span>
                     Eliminar
                   </button>
+                </div>
+
+                {/* Triage Bar */}
+                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Triaje IA (vía n8n)</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={async () => {
+                        setActioning(true);
+                        const body = await fetchGmailBody(selected.id);
+                        await dispararAutomatizacionManual('triage_sales', {
+                          from: selected.from,
+                          email: selected.fromEmail,
+                          subject: selected.subject,
+                          body: body
+                        });
+                        setActioning(false);
+                        alert('Enviado a triaje de Ventas');
+                      }}
+                      disabled={actioning}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-bold rounded-xl border border-blue-200 dark:border-blue-900/30 hover:bg-blue-500/20 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-sm">payments</span>
+                      Pasar a Ventas
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setActioning(true);
+                        const body = await fetchGmailBody(selected.id);
+                        await dispararAutomatizacionManual('triage_support', {
+                          from: selected.from,
+                          email: selected.fromEmail,
+                          subject: selected.subject,
+                          body: body
+                        });
+                        setActioning(false);
+                        alert('Enviado a triaje de Soporte');
+                      }}
+                      disabled={actioning}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[11px] font-bold rounded-xl border border-purple-200 dark:border-purple-900/30 hover:bg-purple-500/20 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-sm">support_agent</span>
+                      Pasar a Soporte
+                    </button>
+                  </div>
                 </div>
               </div>
 
