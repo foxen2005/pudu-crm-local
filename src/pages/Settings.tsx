@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { getMiembros, actualizarMiembro, getNotificaciones, guardarNotificaciones, getWaLocalStatus, getWaLocalQr, setWaActivoOrg, listarInvitaciones, eliminarInvitacion, getRankingEquipo, type Miembro, type Invitacion, type RankingMiembro } from '@/lib/db';
+import { getMiembros, actualizarMiembro, getNotificaciones, guardarNotificaciones, getWaLocalStatus, getWaLocalQr, setWaActivoOrg, listarInvitaciones, eliminarInvitacion, getRankingEquipo, getAutomatizaciones, type Miembro, type Invitacion, type RankingMiembro, type Automatizacion } from '@/lib/db';
+import { dispatchN8NWebhook } from '@/lib/webhookUtils';
 import { CrearColaboradorModal } from '@/components/modals/CrearColaboradorModal';
 import { CamposPersonalizadosSettings } from '@/components/settings/CamposPersonalizadosSettings';
 import { PipelinesSettings } from '@/components/settings/PipelinesSettings';
@@ -43,6 +44,30 @@ export default function Settings() {
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(true);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
+
+  // ── Automatizaciones & Webhooks ──
+  const [webhooks, setWebhooks] = useState<Automatizacion[]>([]);
+  const [testingWebhook, setTestingWebhook] = useState<string | null>(null);
+
+  const loadWebhooks = async () => {
+    const res = await getAutomatizaciones();
+    if (res.ok) {
+      setWebhooks(res.data.filter(a => a.accion_tipo === 'webhook'));
+    }
+  };
+
+  const testWebhook = async (auto: Automatizacion) => {
+    if (!auto.webhook_url) return;
+    setTestingWebhook(auto.id);
+    const res = await dispatchN8NWebhook(auto.webhook_url, 'test_connection', {
+      message: 'Prueba de conexión desde Pudu CRM',
+      automation_id: auto.id,
+      automation_name: auto.nombre
+    });
+    setTestingWebhook(null);
+    if (res.ok) alert('✅ Webhook disparado con éxito. Revisa n8n.');
+    else alert('❌ Error: ' + res.error);
+  };
 
   const checkGoogleStatus = async () => {
     setGoogleLoading(true);
@@ -133,6 +158,7 @@ export default function Settings() {
   useEffect(() => {
     getMiembros().then(r => { if (r.ok) setMiembros(r.data); });
     getRankingEquipo().then(setRanking);
+    loadWebhooks();
     if (member?.orgId) listarInvitaciones(member.orgId).then(setInvitaciones);
   }, [member?.orgId]);
 
@@ -587,6 +613,57 @@ export default function Settings() {
                 </p>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* ── Automatizaciones y Webhooks ── */}
+        <section className="bg-white dark:bg-[#1e1a2e] rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-6">
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg text-primary">hub</span>
+            Automatizaciones y Webhooks (n8n)
+          </h3>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-5">
+            Gestiona la conexión con servicios externos como n8n. Puedes configurar estos webhooks en la sección de Automatizaciones.
+          </p>
+
+          {webhooks.length === 0 ? (
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-center">
+              <p className="text-xs text-slate-500">No tienes automatizaciones de tipo Webhook configuradas.</p>
+              <button
+                onClick={() => navigate('/automatizaciones')}
+                className="text-xs text-primary font-bold mt-2 hover:underline"
+              >
+                Ir a Automatizaciones
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {webhooks.map(auto => (
+                <div key={auto.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#13111a] rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="min-w-0 flex-1 mr-4">
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{auto.nombre}</p>
+                    <p className="text-[10px] text-slate-400 truncate font-mono">{auto.webhook_url}</p>
+                  </div>
+                  <button
+                    onClick={() => testWebhook(auto)}
+                    disabled={testingWebhook === auto.id}
+                    className="flex-shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold rounded-lg hover:bg-slate-50 transition-all flex items-center gap-1.5"
+                  >
+                    <span className={`material-symbols-outlined text-xs ${testingWebhook === auto.id ? 'animate-spin' : ''}`}>
+                      {testingWebhook === auto.id ? 'progress_activity' : 'send'}
+                    </span>
+                    {testingWebhook === auto.id ? 'Probando...' : 'Probar'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg flex gap-3">
+            <span className="material-symbols-outlined text-sm text-blue-500">info</span>
+            <p className="text-[10px] text-blue-700 dark:text-blue-400 leading-normal">
+              <strong>Tip:</strong> Para integrar con n8n, usa un nodo <em>Webhook</em> en tu workflow, copia la URL y pégala al crear una automatización de tipo Webhook en Pudu.
+            </p>
           </div>
         </section>
 

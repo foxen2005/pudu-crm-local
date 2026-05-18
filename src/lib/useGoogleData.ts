@@ -58,26 +58,43 @@ export async function gFetch(url: string, options?: RequestInit, retries = 3, ba
 
   let res = await doRequest(token);
 
-  // 429 → Too Many Requests: implementar backoff exponencial
-  if (res.status === 429 && retries > 0) {
-    await new Promise(resolve => setTimeout(resolve, backoff));
-    return gFetch(url, options, retries - 1, backoff * 2, hasRefreshed);
+  // 429 o 403 (a veces Google usa 403 para rate limits) → backoff exponencial
+  if ((res.status === 429 || res.status === 403) && retries > 0) {
+    const resClone = res.clone();
+    const errorBody = await resClone.json().catch(() => ({}));
+
+    if (res.status === 403 && errorBody?.error?.status !== 'PERMISSION_DENIED') {
+      // Si es 403 pero no es falta de permisos (e.g. rate limit), reintentar
+      console.warn(`[gFetch] Retrying due to status ${res.status}:`, url);
+      await new Promise(resolve => setTimeout(resolve, backoff));
+      return gFetch(url, options, retries - 1, backoff * 2, hasRefreshed);
+    }
+    if (res.status === 429) {
+      console.warn(`[gFetch] Rate limit (429). Retrying in ${backoff}ms:`, url);
+      await new Promise(resolve => setTimeout(resolve, backoff));
+      return gFetch(url, options, retries - 1, backoff * 2, hasRefreshed);
+    }
   }
 
   // 401 → intentar renovar el token automáticamente y reintentar una vez
   if (res.status === 401 && !hasRefreshed) {
+    console.info('[gFetch] Token expired (401). Refreshing...');
     _cachedToken = null;
     _tokenExpiresAt = 0;
     const newToken = await refreshGoogleToken();
     if (newToken) {
-      // Reintentar solo una vez marcando que ya se refrescó el token
+      console.info('[gFetch] Token refreshed successfully. Retrying request.');
       return gFetch(url, options, retries, backoff, true);
     }
-    // Si no hay refresh token → el usuario debe reconectar
+    console.error('[gFetch] Failed to refresh token.');
     throw new Error('TOKEN_EXPIRED');
   }
 
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorInfo = await res.json().catch(() => ({}));
+    console.error(`[gFetch] HTTP ${res.status} error:`, errorInfo);
+    throw new Error(`HTTP ${res.status}: ${errorInfo?.error?.message || res.statusText}`);
+  }
   return res.json();
 }
 

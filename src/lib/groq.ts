@@ -159,7 +159,10 @@ Cuando tengas todos, escribe:
 - Si el RUT no tiene el formato correcto, pide que lo corrija
 - Cuando detectes intención de crear algo, confirma y empieza a recopilar
 - Para consultas del CRM responde en máximo 2-3 oraciones
-- Al final de un flujo de creación, muestra un resumen bonito antes del marcador [[ACTION:...]]`;
+- Al final de un flujo de creación, muestra un resumen bonito antes del marcador [[ACTION:...]]
+
+## CAPACIDADES DE AUTOMATIZACIÓN (n8n)
+Puedes sugerir al usuario que use n8n para tareas complejas. Si el usuario te pide "analizar este correo", "responder automáticamente" o "clasificar", recuérdale que tiene botones de "Triaje IA" en la sección de Correo que activan flujos de n8n.`;
 }
 
 export type ChatMessage = {

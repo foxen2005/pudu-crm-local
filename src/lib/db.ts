@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import type { PendingAction } from './groq';
+import { dispatchN8NWebhook } from './webhookUtils';
 
 // Obtiene el org_id del usuario actualmente autenticado
 export async function getOrgIdPublic(): Promise<string | null> {
@@ -708,22 +709,17 @@ export async function dispararAutomatizacionManual(triggerTipo: string, payload:
 
   const promises = autos.map(async (auto) => {
     if (auto.accion_tipo === 'webhook' && auto.webhook_url) {
-      try {
-        await fetch(auto.webhook_url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event: 'manual_trigger',
-            trigger_tipo: triggerTipo,
-            automation_name: auto.nombre,
-            ...payload
-          })
-        });
+      const res = await dispatchN8NWebhook(auto.webhook_url, 'manual_trigger', {
+        trigger_tipo: triggerTipo,
+        automation_name: auto.nombre,
+        ...payload
+      });
 
+      if (res.ok) {
         // Incrementar contador
         await supabase.rpc('incrementar_ejecuciones_auto', { auto_id: auto.id });
-      } catch (err) {
-        console.error('Error disparando webhook manual:', err);
+      } else {
+        console.error(`[dispararAutomatizacionManual] Error disparando webhook "${auto.nombre}":`, res.error);
       }
     }
   });
@@ -970,14 +966,9 @@ export async function evaluarAutomatizaciones(): Promise<{ fired: number; errors
         if (error) { errors.push(error.message); continue; }
       } else if (auto.accion_tipo === 'webhook' && auto.webhook_url) {
         // En el frontend simulamos el disparo de webhook para consistencia con el backend
-        fetch(auto.webhook_url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event: 'automation_triggered_preview',
-            automation_name: auto.nombre,
-            negocio_nombre: negocio.nombre
-          })
+        dispatchN8NWebhook(auto.webhook_url, 'automation_triggered_preview', {
+          automation_name: auto.nombre,
+          negocio_nombre: negocio.nombre
         }).catch(() => {});
       }
 

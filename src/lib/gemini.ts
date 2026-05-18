@@ -14,7 +14,9 @@ Datos actuales del CRM:
 - Automatizaciones: 24 flujos activos, 1 con error
 
 Responde siempre en 1-3 oraciones máximo, salvo que pidan resumen detallado.
-Nunca inventes datos fuera del contexto. Si no sabes algo, dilo directamente.`;
+Nunca inventes datos fuera del contexto. Si no sabes algo, dilo directamente.
+
+Capacidades Externas: Puedes mencionar que n8n está integrado para tareas de triaje de correos y respuestas automáticas de WhatsApp mediante webhooks.`;
 
 export type ChatMessage = {
   role: 'user' | 'assistant';
