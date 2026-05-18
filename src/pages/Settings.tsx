@@ -34,9 +34,10 @@ export default function Settings() {
   const [colaboradorOpen, setColaboradorOpen] = useState(false);
   const [ranking, setRanking] = useState<RankingMiembro[]>([]);
 
-  const [waLocal, setWaLocal] = useState<{ connected: boolean; phone: string | null; qrPending: boolean } | null>(null);
+  const [waLocal, setWaLocal] = useState<{ connected: boolean; phone: string | null; qrPending: boolean; status?: string } | null>(null);
   const [waQr, setWaQr] = useState<string | null>(null);
   const [waQrImage, setWaQrImage] = useState<string | null>(null);
+  const [initializingWa, setInitializingWa] = useState(false);
 
   // ── Google OAuth ──
   const [googleConnected, setGoogleConnected] = useState(false);
@@ -107,7 +108,7 @@ export default function Settings() {
     poll();
     const interval = setInterval(poll, 5000);
     return () => { alive = false; clearInterval(interval); };
-  }, []);
+  }, [member?.orgId]);
 
   useEffect(() => {
     if (!waQr) { setWaQrImage(null); return; }
@@ -170,6 +171,19 @@ export default function Settings() {
       setTimeout(() => setSaveMsg(null), 3000);
     } else {
       setSaveMsg(result.error);
+    }
+  };
+
+  const initWaSession = async () => {
+    if (!member?.orgId) return;
+    setInitializingWa(true);
+    try {
+      const { WA_URL } = await import('@/lib/wa-url');
+      await fetch(`${WA_URL}/init/${member.orgId}`, { method: 'POST' });
+    } catch (e) {
+      console.error('Error initializing WA:', e);
+    } finally {
+      setInitializingWa(false);
     }
   };
 
@@ -358,12 +372,38 @@ export default function Settings() {
               </p>
             </div>
           ) : (
-            <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-[#252035] rounded-xl border border-slate-100 dark:border-slate-700/50">
-              <span className="material-symbols-outlined text-2xl text-slate-400">info</span>
-              <div>
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Sin conexión activa</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Contacta al administrador para activar WhatsApp en tu cuenta.</p>
+            <div className="flex flex-col items-center gap-4 p-6 bg-slate-50 dark:bg-[#252035] rounded-xl border border-slate-100 dark:border-slate-700/50">
+              <div className="flex items-center gap-3 w-full">
+                <span className="material-symbols-outlined text-2xl text-slate-400">info</span>
+                <div>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Sin conexión activa</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {member?.rol === 'admin'
+                      ? 'Inicia la sesión para vincular tu número.'
+                      : 'Contacta al administrador para activar WhatsApp.'}
+                  </p>
+                </div>
               </div>
+
+              {member?.rol === 'admin' && (
+                <button
+                  onClick={initWaSession}
+                  disabled={initializingWa}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white text-xs font-bold rounded-lg shadow-md shadow-green-600/20 hover:bg-green-700 transition-all disabled:opacity-50"
+                >
+                  {initializingWa ? (
+                    <>
+                      <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                      Iniciando sesión...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-sm">rocket_launch</span>
+                      Conectar WhatsApp
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           )}
         </section>
