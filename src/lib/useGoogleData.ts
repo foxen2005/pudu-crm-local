@@ -42,7 +42,7 @@ async function refreshGoogleToken(): Promise<string | null> {
   }
 }
 
-export async function gFetch(url: string, options?: RequestInit, retries = 3, backoff = 1000) {
+export async function gFetch(url: string, options?: RequestInit, retries = 3, backoff = 1000, hasRefreshed = false) {
   let token = await getGoogleToken();
   if (!token) throw new Error('NO_TOKEN');
 
@@ -61,19 +61,20 @@ export async function gFetch(url: string, options?: RequestInit, retries = 3, ba
   // 429 → Too Many Requests: implementar backoff exponencial
   if (res.status === 429 && retries > 0) {
     await new Promise(resolve => setTimeout(resolve, backoff));
-    return gFetch(url, options, retries - 1, backoff * 2);
+    return gFetch(url, options, retries - 1, backoff * 2, hasRefreshed);
   }
 
   // 401 → intentar renovar el token automáticamente y reintentar una vez
-  if (res.status === 401) {
+  if (res.status === 401 && !hasRefreshed) {
     _cachedToken = null;
     _tokenExpiresAt = 0;
     const newToken = await refreshGoogleToken();
     if (newToken) {
-      res = await doRequest(newToken);
+      // Reintentar solo una vez marcando que ya se refrescó el token
+      return gFetch(url, options, retries, backoff, true);
     }
-    // Si sigue 401 después del refresh → el usuario debe reconectar
-    if (res.status === 401) throw new Error('TOKEN_EXPIRED');
+    // Si no hay refresh token → el usuario debe reconectar
+    throw new Error('TOKEN_EXPIRED');
   }
 
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
