@@ -93,6 +93,27 @@ BEGIN
       ELSIF r_auto.accion_tipo = 'marcar_riesgo' THEN
         UPDATE negocios SET riesgo = TRUE
         WHERE id = r_neg.id;
+
+      ELSIF r_auto.accion_tipo = 'webhook' AND r_auto.webhook_url IS NOT NULL THEN
+        -- Realizar petición HTTP POST usando pg_net
+        PERFORM net.http_post(
+          url := r_auto.webhook_url,
+          body := jsonb_build_object(
+            'event', 'automation_triggered',
+            'automation_id', r_auto.id,
+            'automation_name', r_auto.nombre,
+            'org_id', r_auto.org_id,
+            'negocio', jsonb_build_object(
+              'id', r_neg.id,
+              'nombre', r_neg.nombre,
+              'valor', r_neg.valor,
+              'etapa', r_neg.etapa,
+              'empresa', r_neg.empresa_nombre,
+              'contacto', r_neg.contacto_nombre
+            ),
+            'timestamp', NOW()
+          )
+        );
       END IF;
 
       -- Registrar ejecución en el log

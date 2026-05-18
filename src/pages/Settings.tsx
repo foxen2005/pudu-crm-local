@@ -48,9 +48,19 @@ export default function Settings() {
   const checkGoogleStatus = async () => {
     setGoogleLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
     const identity = user?.identities?.find(i => i.provider === 'google');
     setGoogleConnected(!!identity);
     setGoogleEmail((identity?.identity_data?.email as string) ?? null);
+
+    // Persistir el refresh token si está disponible en la sesión
+    if (identity && session?.provider_refresh_token && user) {
+      await supabase
+        .from('miembros')
+        .update({ google_refresh_token: session.provider_refresh_token })
+        .eq('user_id', user.id);
+    }
+
     setGoogleLoading(false);
   };
 
