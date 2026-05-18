@@ -785,6 +785,7 @@ export type Automatizacion = {
   accion_tipo: string;
   accion_titulo: string;
   accion_tipo_actividad: string;
+  webhook_url?: string;
   activa: boolean;
   ejecuciones: number;
   created_at: string;
@@ -809,6 +810,7 @@ export async function crearAutomatizacion(fields: {
   accion_tipo: string;
   accion_titulo: string;
   accion_tipo_actividad: string;
+  webhook_url?: string;
 }): Promise<DbResult<Automatizacion>> {
   const org_id = await getOrgId();
   if (!org_id) return { ok: false, error: 'No autenticado' };
@@ -844,6 +846,7 @@ export async function actualizarAutomatizacion(id: string, fields: {
   accion_tipo: string;
   accion_titulo: string;
   accion_tipo_actividad: string;
+  webhook_url?: string;
 }): Promise<DbResult<null>> {
   const org_id = await getOrgId();
   if (!org_id) return { ok: false, error: 'No autenticado' };
@@ -927,6 +930,17 @@ export async function evaluarAutomatizaciones(): Promise<{ fired: number; errors
         const { error } = await supabase
           .from('negocios').update({ riesgo: true }).eq('id', negocio.id);
         if (error) { errors.push(error.message); continue; }
+      } else if (auto.accion_tipo === 'webhook' && auto.webhook_url) {
+        // En el frontend simulamos el disparo de webhook para consistencia con el backend
+        fetch(auto.webhook_url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'automation_triggered_preview',
+            automation_name: auto.nombre,
+            negocio_nombre: negocio.nombre
+          })
+        }).catch(() => {});
       }
 
       // Log the execution

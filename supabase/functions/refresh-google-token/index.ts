@@ -1,12 +1,16 @@
 // ══════════════════════════════════════════════════════════════════
 // PUDU CRM — Edge Function: refresh-google-token
-// Renueva el access_token de Google usando el provider_refresh_token
-// guardado en la sesión del usuario.
+// Renueva el access_token de Google usando el refresh_token
+// proporcionado o buscándolo en la base de datos para el usuario.
 //
-// Secrets necesarios en Supabase (Dashboard → Settings → Edge Functions → Secrets):
-//   GOOGLE_CLIENT_ID     → OAuth 2.0 Client ID de Google Cloud Console
-//   GOOGLE_CLIENT_SECRET → OAuth 2.0 Client Secret de Google Cloud Console
+// Secrets necesarios en Supabase:
+//   GOOGLE_CLIENT_ID
+//   GOOGLE_CLIENT_SECRET
+//   SUPABASE_URL
+//   SUPABASE_SERVICE_ROLE_KEY
 // ══════════════════════════════════════════════════════════════════
+
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,11 +23,25 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { refresh_token } = await req.json();
+    let { refresh_token, user_id } = await req.json().catch(() => ({}));
+
+    // Si no viene refresh_token pero sí user_id, buscarlo en la DB
+    if (!refresh_token && user_id) {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      );
+      const { data } = await supabase
+        .from('miembros')
+        .select('google_refresh_token')
+        .eq('user_id', user_id)
+        .single();
+      refresh_token = data?.google_refresh_token;
+    }
 
     if (!refresh_token) {
       return new Response(
-        JSON.stringify({ error: 'refresh_token requerido' }),
+        JSON.stringify({ error: 'refresh_token o user_id con token persistido requerido' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

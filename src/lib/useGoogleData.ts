@@ -23,12 +23,15 @@ async function getGoogleToken(): Promise<string | null> {
 
 async function refreshGoogleToken(): Promise<string | null> {
   const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
   const refreshToken = session?.provider_refresh_token;
-  if (!refreshToken) return null;
 
   try {
     const { data, error } = await supabase.functions.invoke('refresh-google-token', {
-      body: { refresh_token: refreshToken },
+      body: {
+        refresh_token: refreshToken,
+        user_id: user?.id
+      },
     });
     if (error || !data?.access_token) return null;
     _cachedToken = data.access_token as string;
@@ -39,7 +42,7 @@ async function refreshGoogleToken(): Promise<string | null> {
   }
 }
 
-export async function gFetch(url: string, options?: RequestInit) {
+export async function gFetch(url: string, options?: RequestInit, retries = 3, backoff = 1000) {
   let token = await getGoogleToken();
   if (!token) throw new Error('NO_TOKEN');
 
@@ -54,6 +57,12 @@ export async function gFetch(url: string, options?: RequestInit) {
     });
 
   let res = await doRequest(token);
+
+  // 429 → Too Many Requests: implementar backoff exponencial
+  if (res.status === 429 && retries > 0) {
+    await new Promise(resolve => setTimeout(resolve, backoff));
+    return gFetch(url, options, retries - 1, backoff * 2);
+  }
 
   // 401 → intentar renovar el token automáticamente y reintentar una vez
   if (res.status === 401) {
@@ -212,7 +221,16 @@ export function useGmail(maxResults = 20, labelId = 'INBOX') {
       if (pageToken) params.set('pageToken', pageToken);
       const data = await gFetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?${params}`);
       const ids: string[] = (data.messages ?? []).map((m: { id: string }) => m.id);
-      const details = await Promise.all(ids.map(fetchMessageDetail));
+
+      // Procesar en lotes (batches) de 5 para evitar rate limits y saturar la red
+      const batchSize = 5;
+      const details: GmailMessage[] = [];
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        const batchDetails = await Promise.all(batch.map(fetchMessageDetail));
+        details.push(...batchDetails);
+      }
+
       setMessages(prev => pageToken ? [...prev, ...details] : details);
       setNextPageToken(data.nextPageToken ?? null);
     } catch (e: unknown) {
@@ -276,7 +294,16 @@ export function useGmailContact(contactEmail: string | null) {
     gFetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${q}&maxResults=20`)
       .then(async data => {
         const ids: string[] = (data.messages ?? []).map((m: { id: string }) => m.id);
-        const details = await Promise.all(ids.map(fetchMessageDetail));
+
+        // Batching also here for consistency
+        const batchSize = 5;
+        const details: GmailMessage[] = [];
+        for (let i = 0; i < ids.length; i += batchSize) {
+          const batch = ids.slice(i, i + batchSize);
+          const batchDetails = await Promise.all(batch.map(fetchMessageDetail));
+          details.push(...batchDetails);
+        }
+
         setMessages(details);
       })
       .catch(e => setError(e instanceof Error ? e.message : 'Error'))
